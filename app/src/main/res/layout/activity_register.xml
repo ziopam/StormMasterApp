@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:autofillHints='""'
+    tools:context=".RegisterActivity">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/userNameRegView"
+        style="?attr/textInputOutlinedStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/username_input_hint"
+        app:counterEnabled="true"
+        app:counterMaxLength="12"
+        app:errorEnabled="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.234"
+        app:layout_constraintWidth_max="488dp"
+        app:layout_constraintWidth_percent="0.7"
+        >
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/userNameRegEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/passwordRegView"
+        style="?attr/textInputOutlinedStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:hint="@string/password_input_text"
+        app:counterEnabled="true"
+        app:counterMaxLength="20"
+        app:errorEnabled="true"
+        app:endIconMode="password_toggle"
+        app:layout_constraintTop_toBottomOf="@+id/userNameRegView"
+        app:layout_constraintEnd_toEndOf="@+id/userNameRegView"
+        app:layout_constraintStart_toStartOf="@+id/userNameRegView"
+        >
+
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/passwordRegEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/registerButton"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:text="@string/register_button_text"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/userNameRegView"
+        app:layout_constraintStart_toStartOf="@+id/userNameRegView"
+        app:layout_constraintTop_toBottomOf="@+id/repeatPasswordRegView"
+        app:layout_constraintWidth_max="320dp"
+        />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/repeatPasswordRegView"
+        style="?attr/textInputOutlinedStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:hint="@string/repeat_password_message"
+        app:endIconMode="password_toggle"
+        app:layout_constraintEnd_toEndOf="@+id/passwordRegView"
+        app:layout_constraintStart_toStartOf="@+id/passwordRegView"
+        app:layout_constraintTop_toBottomOf="@+id/passwordRegView"
+        app:counterEnabled="true"
+        app:counterMaxLength="20"
+        app:errorEnabled="true">
+
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/repeatPasswordEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/nameOfAppText"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="25dp"
+        android:layout_marginTop="25dp"
+        android:text="@string/app_name"
+        android:lines="1"
+        android:autoSizeTextType="uniform"
+        android:autoSizeMaxTextSize="35sp"
+        android:autoSizeStepGranularity="2sp"
+        android:gravity="center|bottom"
+        app:layout_constraintBottom_toTopOf="@+id/userNameRegView"
+        app:layout_constraintEnd_toEndOf="@+id/userNameRegView"
+        app:layout_constraintStart_toStartOf="@+id/userNameRegView"
+        app:layout_constraintHeight_percent="0.1"
+        />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/goToRegistrationButton"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/go_to_login_text"
+        app:layout_constraintEnd_toEndOf="@+id/registerButton"
+        app:layout_constraintStart_toStartOf="@+id/registerButton"
+        app:layout_constraintTop_toBottomOf="@+id/registerButton" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

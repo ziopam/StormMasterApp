@@ -1,3 +1,20 @@
 <resources>
-    <string name="app_name">StormMasterClient</string>
+    <string name="app_name">StormMaster</string>
+    <string name="server_url">http://192.168.0.126:8000/</string>
+    <string name="username_input_hint">Никнейм</string>
+    <string name="password_input_text">Пароль</string>
+    <string name="login_button_text">Войти</string>
+    <string name="go_to_register_text">Нет аккаунта? Зарегистрироваться</string>
+    <string name="register_button_text">Зарегистрироваться</string>
+    <string name="title_activity_login2">LoginActivity2</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+    <string name="repeat_password_message">Повторите пароль</string>
+    <string name="go_to_login_text">Уже есть аккаунт? Войти</string>
 </resources>
