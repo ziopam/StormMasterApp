@@ -9,7 +9,9 @@ from django.db import models
 
 def validate_username(value):
     if len(value) < 4:
-        raise ValidationError('Username must be at least 4 characters long')
+        raise ValidationError('Длина имени пользователя должна быть не менее 4 символов.')
+    if User.objects.filter(username=value).exists():
+        raise ValidationError('Пользователь с таким никнеймом уже существует.')
 
 
 class User(AbstractUser):
@@ -28,28 +30,4 @@ class User(AbstractUser):
     )
 
 
-class PasswordLengthValidator:
-    def validate(self, password, user=None):
-        if len(password) > 20:
-            raise ValidationError(
-                "Пароль не должен превышать 20 символов.",
-                code='password_too_long',
-            )
 
-    def get_help_text(self):
-        return "Ваш пароль не должен превышать 20 символов."
-
-class PasswordCharacterValidator:
-    def validate(self, password, user=None):
-        allowed_characters = r'^[a-zA-Z0-9!@#$%^&*()_\-+=;:,.?/\\|`~\[\]{}]*$'
-        if not re.match(allowed_characters, password):
-            raise ValidationError(
-                "Пароль может содержать только буквы, цифры и специальные символы: !@#$%^&*()_\-+=;:,.?/\\|`~\[\]{}]*$",
-                code='password_invalid_characters',
-            )
-
-    def get_help_text(self):
-        return (
-            "Your password may only contain letters, digits, and special characters: "
-            "!@#$%^&*()-_+=;:,./?\\|`~[]{}."
-        )

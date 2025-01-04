@@ -8,7 +8,7 @@
     tools:context=".LoginActivity">
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/userNameRegView"
+        android:id="@+id/userNameLoginView"
         style="?attr/textInputOutlinedStyle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -23,34 +23,35 @@
         >
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/userNameRegEditText"
+            android:id="@+id/userNameLoginEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/passwordRegView"
+        android:id="@+id/passwordLoginView"
         style="?attr/textInputOutlinedStyle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         android:hint="@string/password_input_text"
-        app:layout_constraintEnd_toEndOf="@+id/userNameRegView"
-        app:layout_constraintStart_toStartOf="@+id/userNameRegView"
-        app:layout_constraintTop_toBottomOf="@+id/userNameRegView"
+        app:layout_constraintEnd_toEndOf="@+id/userNameLoginView"
+        app:layout_constraintStart_toStartOf="@+id/userNameLoginView"
+        app:layout_constraintTop_toBottomOf="@+id/userNameLoginView"
         app:endIconMode="password_toggle">
 
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/passwordLoginEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPassword"/>
+            android:inputType="textPassword" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/registerButton"
+        android:id="@+id/loginButton"
         style="@style/Widget.Material3.Button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -58,9 +59,9 @@
         android:text="@string/login_button_text"
         android:textSize="20sp"
         app:layout_constraintWidth_percent="0.35"
-        app:layout_constraintEnd_toEndOf="@+id/userNameRegView"
-        app:layout_constraintStart_toStartOf="@+id/userNameRegView"
-        app:layout_constraintTop_toBottomOf="@+id/passwordRegView"
+        app:layout_constraintEnd_toEndOf="@+id/userNameLoginView"
+        app:layout_constraintStart_toStartOf="@+id/userNameLoginView"
+        app:layout_constraintTop_toBottomOf="@+id/passwordLoginView"
         app:layout_constraintWidth_max="244dp" />
 
     <TextView
@@ -75,9 +76,9 @@
         android:autoSizeMaxTextSize="35sp"
         android:autoSizeStepGranularity="2sp"
         android:gravity="center|bottom"
-        app:layout_constraintBottom_toTopOf="@+id/userNameRegView"
-        app:layout_constraintEnd_toEndOf="@+id/userNameRegView"
-        app:layout_constraintStart_toStartOf="@+id/userNameRegView"
+        app:layout_constraintBottom_toTopOf="@+id/userNameLoginView"
+        app:layout_constraintEnd_toEndOf="@+id/userNameLoginView"
+        app:layout_constraintStart_toStartOf="@+id/userNameLoginView"
         app:layout_constraintHeight_percent="0.1"
         />
 
@@ -87,9 +88,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/go_to_register_text"
-        app:layout_constraintEnd_toEndOf="@+id/registerButton"
-        app:layout_constraintStart_toStartOf="@+id/registerButton"
-        app:layout_constraintTop_toBottomOf="@+id/registerButton" />
+        app:layout_constraintEnd_toEndOf="@+id/loginButton"
+        app:layout_constraintStart_toStartOf="@+id/loginButton"
+        app:layout_constraintTop_toBottomOf="@+id/loginButton" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

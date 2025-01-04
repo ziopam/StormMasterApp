@@ -1,4 +1,4 @@
-package com.example.stormmasterclient.helpers;
+package com.example.stormmasterclient.helpers.TextWatchers;
 
 import android.text.Editable;
 import android.text.TextWatcher;

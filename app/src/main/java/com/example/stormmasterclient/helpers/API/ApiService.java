@@ -12,4 +12,7 @@ public interface ApiService {
 
     @POST("api/auth/users/")
     Call<JsonElement> userRegistration(@Body RequestBody body);
+
+    @POST("api/auth/token/login/")
+    Call<JsonElement> userLogin(@Body RequestBody body);
 }

@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-c&o$hn=o%#tz6!fd+1^1!pfz&705sf__s#80-=jx1od&_fmv+4
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '192.168.0.126'
+    '*'
 ]
 
 
@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
-    'customUser',
+    'customUser.apps.CustomUserConfig',
 ]
 
 MIDDLEWARE = [
@@ -104,10 +104,10 @@ AUTH_PASSWORD_VALIDATORS =[
         }
     },
     {
-        'NAME': 'customUser.models.PasswordLengthValidator',
+        'NAME': 'customUser.validators.PasswordLengthValidator',
     },
     {
-        'NAME': 'customUser.models.PasswordCharacterValidator',
+        'NAME': 'customUser.validators.PasswordCharacterValidator',
     }
 ]
 
@@ -157,6 +157,9 @@ DJOSER = {
         'set_username': ['djoser.permissions.CurrentUserOrAdmin'],
         'user_delete': ['djoser.permissions.AdminUser'],
         'user_list': ['rest_framework.permissions.IsAdminUser'],
+    },
+    'SERIALIZERS': {
+        'user_create': 'customUser.serializers.UserCreateSerializer',
     }
 }
 

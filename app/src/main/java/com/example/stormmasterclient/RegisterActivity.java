@@ -2,19 +2,17 @@ package com.example.stormmasterclient;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.stormmasterclient.helpers.API.ApiClient;
-import com.example.stormmasterclient.helpers.PasswordTextWatcher;
-import com.example.stormmasterclient.helpers.RepeatPasswordTextWatcher;
-import com.example.stormmasterclient.helpers.UserNameTextWatcher;
+import com.example.stormmasterclient.helpers.TextWatchers.PasswordTextWatcher;
+import com.example.stormmasterclient.helpers.TextWatchers.RepeatPasswordTextWatcher;
+import com.example.stormmasterclient.helpers.TextWatchers.UserNameTextWatcher;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
-
-import java.util.Objects;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -49,6 +47,12 @@ public class RegisterActivity extends AppCompatActivity {
                 Toast.makeText(RegisterActivity.this, "Проверьте правильность введенных данных",
                         Toast.LENGTH_SHORT).show();
             }
+        });
+
+        MaterialButton goToLoginButton = findViewById(R.id.goToLoginButton);
+        goToLoginButton.setOnClickListener(view -> {
+            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+            startActivity(intent);
         });
 
     }
