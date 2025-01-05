@@ -17,4 +17,8 @@
     <string name="login_failed">"Login failed"</string>
     <string name="repeat_password_message">Повторите пароль</string>
     <string name="go_to_login_text">Уже есть аккаунт? Войти</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="change_password_button_text">Сменить пароль</string>
+    <string name="logout_text">Выйти</string>
 </resources>

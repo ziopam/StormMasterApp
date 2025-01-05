@@ -1,14 +1,12 @@
 package com.example.stormmasterclient.helpers.API;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.stormmasterclient.HistoryActivity;
-import com.example.stormmasterclient.R;
+import com.example.stormmasterclient.MainActivity;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -74,7 +72,7 @@ public class ApiClient {
         editor.apply();
         Toast.makeText(context, "Вы успешно зарегистрировались", Toast.LENGTH_SHORT)
                 .show();
-        Intent intent = new Intent(context, HistoryActivity.class);
+        Intent intent = new Intent(context, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         context.startActivity(intent);
     }
@@ -140,7 +138,7 @@ public class ApiClient {
         editor.apply();
         Toast.makeText(context, "Вы успешно вошли в свою учётную запись", Toast.LENGTH_SHORT)
                 .show();
-        Intent intent = new Intent(context, HistoryActivity.class);
+        Intent intent = new Intent(context, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         context.startActivity(intent);
     }
