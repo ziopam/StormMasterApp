@@ -47,7 +47,7 @@ public class ApiClient {
             public void onResponse(Call<JsonElement> call, retrofit2.Response<JsonElement> response) {
                 JsonElement jsonElement = response.body();
                 if(response.isSuccessful() && jsonElement != null){
-                    processSuccessfulUserCreation(jsonElement);
+                    processSuccessfulUserCreation(jsonElement, username);
                 } else {
                     ResponseBody errorBody = response.errorBody();
                     processFailedUserCreation(errorBody);
@@ -64,11 +64,12 @@ public class ApiClient {
         });
     }
 
-    private void processSuccessfulUserCreation(JsonElement jsonElement) {
+    private void processSuccessfulUserCreation(JsonElement jsonElement, String username) {
         JsonObject jsonObject = jsonElement.getAsJsonObject();
-        SharedPreferences sharedPreferences = context.getSharedPreferences("TOKEN", Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = context.getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("token", jsonObject.get("token").getAsString());
+        editor.putString("username", username);
         editor.apply();
         Toast.makeText(context, "Вы успешно зарегистрировались", Toast.LENGTH_SHORT)
                 .show();
@@ -114,7 +115,7 @@ public class ApiClient {
             public void onResponse(Call<JsonElement> call, retrofit2.Response<JsonElement> response) {
                 JsonElement jsonElement = response.body();
                 if(response.isSuccessful() && jsonElement != null){
-                    processSuccessfulUserLogin(jsonElement);
+                    processSuccessfulUserLogin(jsonElement, username);
                 } else {
                     ResponseBody errorBody = response.errorBody();
                     processFailedUserLogin(errorBody);
@@ -130,11 +131,12 @@ public class ApiClient {
         });
     }
 
-    private void processSuccessfulUserLogin(JsonElement jsonElement) {
+    private void processSuccessfulUserLogin(JsonElement jsonElement, String username) {
         JsonObject jsonObject = jsonElement.getAsJsonObject();
-        SharedPreferences sharedPreferences = context.getSharedPreferences("TOKEN", Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = context.getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("token", jsonObject.get("auth_token").getAsString());
+        editor.putString("username", username);
         editor.apply();
         Toast.makeText(context, "Вы успешно вошли в свою учётную запись", Toast.LENGTH_SHORT)
                 .show();
@@ -163,8 +165,5 @@ public class ApiClient {
                     Toast.LENGTH_SHORT).show();
         }
     }
-
-
-
 
 }

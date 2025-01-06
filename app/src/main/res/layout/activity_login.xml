@@ -20,6 +20,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintWidth_percent="0.7"
         app:layout_constraintWidth_max="488dp"
+        app:errorEnabled="true"
         >
 
         <com.google.android.material.textfield.TextInputEditText
@@ -34,12 +35,12 @@
         style="?attr/textInputOutlinedStyle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
         android:hint="@string/password_input_text"
         app:layout_constraintEnd_toEndOf="@+id/userNameLoginView"
         app:layout_constraintStart_toStartOf="@+id/userNameLoginView"
         app:layout_constraintTop_toBottomOf="@+id/userNameLoginView"
-        app:endIconMode="password_toggle">
+        app:endIconMode="password_toggle"
+        app:errorEnabled="true">
 
 
         <com.google.android.material.textfield.TextInputEditText

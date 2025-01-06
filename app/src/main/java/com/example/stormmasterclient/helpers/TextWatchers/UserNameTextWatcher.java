@@ -12,7 +12,6 @@ public class UserNameTextWatcher implements TextWatcher {
         this.userNameLayout = userNameLayout;
     }
 
-
     @Override
     public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 

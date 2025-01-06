@@ -154,8 +154,8 @@ DJOSER = {
         'password_reset_confirm': ['rest_framework.permissions.IsAdminUser'],
         'username_reset': ['rest_framework.permissions.IsAdminUser'],
         'username_reset_confirm': ['rest_framework.permissions.IsAdminUser'],
-        'set_username': ['djoser.permissions.CurrentUserOrAdmin'],
-        'user_delete': ['djoser.permissions.AdminUser'],
+        'set_username': ['rest_framework.permissions.IsAdminUser'],
+        'user_delete': ['rest_framework.permissions.IsAdminUser'],
         'user_list': ['rest_framework.permissions.IsAdminUser'],
     },
     'SERIALIZERS': {
