@@ -5,9 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/appNameTextView"
         android:layout_width="match_parent"
+        android:textColor="@color/beautiful_black"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
         android:autoSizeMaxTextSize="30dp"
@@ -42,12 +43,5 @@
         app:menu="@menu/main_menu">
 
     </com.google.android.material.bottomnavigation.BottomNavigationView>
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.05"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -12,7 +12,7 @@
         style="@style/Widget.Material3.Button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/change_password_button_text"
+        android:text="@string/change_password_text"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -34,8 +34,9 @@
         app:layout_constraintStart_toStartOf="@+id/changePasswordButton"
         app:layout_constraintTop_toBottomOf="@+id/changePasswordButton" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/userNameTextView"
+        android:textColor="@color/rose_quartz"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="16dp"

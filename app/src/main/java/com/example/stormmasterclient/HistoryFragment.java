@@ -8,6 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.material.transition.MaterialFade;
+import com.google.android.material.transition.MaterialFadeThrough;
+
 
 public class HistoryFragment extends Fragment {
 
@@ -17,6 +20,10 @@ public class HistoryFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        MaterialFadeThrough materialFadeThrough = new MaterialFadeThrough();
+        setEnterTransition(materialFadeThrough);
+        setExitTransition(materialFadeThrough);
     }
 
     @Override

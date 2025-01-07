@@ -58,7 +58,6 @@ public class ApiClient {
             public void onFailure(Call<JsonElement> call, Throwable t) {
                 Toast.makeText(context, "Возникла ошибка при попытке связаться с сервером. Проверьте подключение к интернету",
                         Toast.LENGTH_SHORT).show();
-                Log.d("ApiClient", "onFailure: " + t.getMessage());
             }
 
         });
@@ -125,7 +124,6 @@ public class ApiClient {
             public void onFailure(Call<JsonElement> call, Throwable t) {
                 Toast.makeText(context, "Возникла ошибка при попытке связаться с сервером. Проверьте подключение к интернету",
                         Toast.LENGTH_SHORT).show();
-                Log.d("ApiClient", "onFailure: " + t.getMessage());
             }
 
         });

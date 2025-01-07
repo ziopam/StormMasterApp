@@ -65,8 +65,9 @@
         app:layout_constraintTop_toBottomOf="@+id/passwordLoginView"
         app:layout_constraintWidth_max="244dp" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/nameOfAppText"
+        android:textColor="@color/beautiful_black"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="25dp"

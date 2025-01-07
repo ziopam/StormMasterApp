@@ -3,6 +3,7 @@ package com.example.stormmasterclient.helpers.dialogs;
 import android.content.Context;
 
 import com.example.stormmasterclient.R;
+import com.example.stormmasterclient.helpers.API.ApiAuthorizedClient;
 import com.example.stormmasterclient.helpers.others.LoggerOut;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -22,8 +23,9 @@ public class ExitDialog {
                         "на кнопку \"Выйти со всех устройств\".")
                 .setNegativeButton("Отмена", (dialogInterface, i) -> dialogInterface.dismiss())
                 .setNeutralButton("Выйти со всех устройств", (dialogInterface, i) -> {
-                    LoggerOut loggerOut = new LoggerOut(context);
-                    loggerOut.logOut();
+                    String token = context.getSharedPreferences("USER_DATA", 0).getString("token", "");
+                    ApiAuthorizedClient apiClient = new ApiAuthorizedClient(context, token);
+                    apiClient.userLogout();
                 })
                 .setPositiveButton("Выйти", (dialogInterface, i) -> {
                     LoggerOut loggerOut = new LoggerOut(context);

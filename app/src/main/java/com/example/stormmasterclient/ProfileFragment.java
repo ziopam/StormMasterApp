@@ -1,5 +1,6 @@
 package com.example.stormmasterclient;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -15,6 +16,7 @@ import android.widget.Toast;
 import com.example.stormmasterclient.helpers.dialogs.ExitDialog;
 import com.example.stormmasterclient.helpers.others.LoggerOut;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.transition.MaterialFadeThrough;
 
 public class ProfileFragment extends Fragment {
 
@@ -24,6 +26,10 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        MaterialFadeThrough materialFadeThrough = new MaterialFadeThrough();
+        setEnterTransition(materialFadeThrough);
+        setExitTransition(materialFadeThrough);
     }
 
     @Override
@@ -47,11 +53,15 @@ public class ProfileFragment extends Fragment {
         TextView usernameView = view.findViewById(R.id.userNameTextView);
         usernameView.setText(username);
 
+        MaterialButton changePasswordButton = view.findViewById(R.id.changePasswordButton);
+        changePasswordButton.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), ChangePasswordActivity.class);
+            startActivity(intent);
+        });
+
         MaterialButton logOutButton = view.findViewById(R.id.logOutButton);
         logOutButton.setOnClickListener(v -> {
             new ExitDialog(requireContext()).show();
         });
-
-
     }
 }
