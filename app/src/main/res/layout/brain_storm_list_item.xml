@@ -1,0 +1,49 @@
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:contentPadding="35dp"
+    app:cardCornerRadius="16dp"
+    app:cardBackgroundColor="@color/rose_quartz"
+    app:cardElevation="4dp"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+
+        <TextView
+            android:id="@+id/tv_brainstorm_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/white"
+            android:autoSizeTextType="uniform"
+            android:autoSizePresetSizes="2dp"
+            android:autoSizeMaxTextSize="50dp"
+            android:textStyle="bold"
+            tools:text="Название мозгового штурма · Создатель" />
+
+        <TextView
+            android:id="@+id/tv_brainstorm_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/white"
+            android:autoSizeTextType="uniform"
+            android:autoSizePresetSizes="2dp"
+            android:autoSizeMaxTextSize="50dp"
+            tools:text="01.01.2025" />
+
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

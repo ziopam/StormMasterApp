@@ -1,8 +1,11 @@
 package com.example.stormmasterclient;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -21,6 +24,14 @@ public class ChangePasswordActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change_password);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle("Назад");
+        }
 
         TextInputLayout oldPasswordLayout = findViewById(R.id.oldPasswordView);
         EditText oldPasswordEditText = findViewById(R.id.oldPasswordEditText);
@@ -41,7 +52,9 @@ public class ChangePasswordActivity extends AppCompatActivity {
         MaterialButton changePasswordButton = findViewById(R.id.changePasswordButton);
         changePasswordButton.setOnClickListener(view -> {
             if(oldPasswordLayout.getError() == null && newPasswordLayout.getError() == null &&
-                    repeatPasswordLayout.getError() == null) {
+                    repeatPasswordLayout.getError() == null && !oldPasswordEditText.getText().toString().isEmpty()
+                    && !newPasswordEditText.getText().toString().isEmpty() && !repeatPasswordEditText.
+                    getText().toString().isEmpty()){
                 String oldPassword = oldPasswordEditText.getText().toString();
                 String newPassword = newPasswordEditText.getText().toString();
                 apiClient.userChangePassword(oldPassword, newPassword, this);
@@ -50,5 +63,14 @@ public class ChangePasswordActivity extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId() == android.R.id.home){
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
