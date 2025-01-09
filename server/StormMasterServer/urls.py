@@ -17,9 +17,12 @@ Including another URLconf
 # from django.contrib import admin
 from django.urls import path, include, re_path
 
+from brainstormsApp.views import GetUserBrainstormsView
+
 urlpatterns = [
     #    path('admin/', admin.site.urls),
 
     re_path('api/auth/', include('djoser.urls')),
-    re_path('api/auth/', include('djoser.urls.authtoken'))
+    re_path('api/auth/', include('djoser.urls.authtoken')),
+    path('api/get_user_brainstorms/', GetUserBrainstormsView.as_view())
 ]

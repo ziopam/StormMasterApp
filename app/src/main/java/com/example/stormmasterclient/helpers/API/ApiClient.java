@@ -69,7 +69,7 @@ public class ApiClient {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("token", jsonObject.get("token").getAsString());
         editor.putString("username", username);
-        editor.apply();
+        editor.commit();
         Toast.makeText(context, "Вы успешно зарегистрировались", Toast.LENGTH_SHORT)
                 .show();
         Intent intent = new Intent(context, MainActivity.class);
@@ -135,7 +135,7 @@ public class ApiClient {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("token", jsonObject.get("auth_token").getAsString());
         editor.putString("username", username);
-        editor.apply();
+        editor.commit();
         Toast.makeText(context, "Вы успешно вошли в свою учётную запись", Toast.LENGTH_SHORT)
                 .show();
         Intent intent = new Intent(context, MainActivity.class);
