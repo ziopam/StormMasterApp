@@ -42,15 +42,21 @@ public class MainActivity extends AppCompatActivity {
         Fragment selectedFragment = null;
         int itemId = item.getItemId();
         if (itemId == R.id.history){
-            selectedFragment = new HistoryFragment();
+            selectedFragment = getSupportFragmentManager().findFragmentByTag(HistoryFragment.class.getSimpleName());
+            if (selectedFragment == null) {
+                selectedFragment = new HistoryFragment();
+            }
         } else if (itemId == R.id.profile) {
-            selectedFragment = new ProfileFragment();
+            selectedFragment = getSupportFragmentManager().findFragmentByTag(ProfileFragment.class.getSimpleName());
+            if (selectedFragment == null) {
+                selectedFragment = new ProfileFragment();
+            }
         }
 
         if (selectedFragment != null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.fragmentContainer, selectedFragment)
+                    .replace(R.id.fragmentContainer, selectedFragment, selectedFragment.getClass().getSimpleName())
                     .commit();
         }
         return true;
