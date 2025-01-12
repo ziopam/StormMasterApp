@@ -11,6 +11,7 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
 
 public interface ApiService {
 
@@ -28,4 +29,7 @@ public interface ApiService {
 
     @GET("api/get_user_brainstorms/")
     Call<List<BrainstormEntity>> getUserBrainstorms(@Header("Authorization") String token);
+
+    @POST("api/delete_user_brainstorm/{id}/")
+    Call<JsonElement> deleteUserBrainstorm(@Header("Authorization") String token, @Path("id") int id);
 }
