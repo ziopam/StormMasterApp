@@ -3,7 +3,7 @@ from rest_framework.authtoken.models import Token
 
 class UserCreateSerializer(BaseUserCreateSerializer):
     class Meta(BaseUserCreateSerializer.Meta):
-        fields = BaseUserCreateSerializer.Meta.fields  # Используем стандартные поля
+        fields = BaseUserCreateSerializer.Meta.fields
 
     def to_representation(self, instance):
         token, _ = Token.objects.get_or_create(user=instance)

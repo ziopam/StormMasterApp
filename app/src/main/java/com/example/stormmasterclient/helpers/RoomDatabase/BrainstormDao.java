@@ -17,6 +17,9 @@ public interface BrainstormDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(List<BrainstormEntity> brainstorms);
 
+    @Query("DELETE FROM brainstorm_table WHERE id = :id")
+    void deleteById(int id);
+
     @Query("DELETE FROM brainstorm_table")
     void deleteAll();
 }

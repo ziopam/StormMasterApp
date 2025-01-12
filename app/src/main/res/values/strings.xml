@@ -13,4 +13,6 @@
     <string name="old_password_text">Старый пароль</string>
     <string name="change_password_text">Сменить пароль</string>
     <string name="new_password_text">Новый пароль</string>
+    <string name="pdf_button_text">PDF</string>
+    <string name="delete_button_text">Удалить мозговой штурм</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.example.stormmasterclient.helpers.RecyclerViewAdapters;
 
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.stormmasterclient.BrainstormViewActivity;
 import com.example.stormmasterclient.R;
 import com.example.stormmasterclient.helpers.RoomDatabase.BrainstormEntity;
 
@@ -50,6 +52,15 @@ public class BrainstormAdapter extends ListAdapter<BrainstormEntity, BrainstormA
         String title = currentBrainstorm.getTitle() + " · " + isOwner;
         holder.titleTextView.setText(title);
         holder.dateTextView.setText(currentBrainstorm.getCompletionDate());
+
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(v.getContext(), BrainstormViewActivity.class);
+            intent.putExtra("title", currentBrainstorm.getTitle());
+            intent.putExtra("date", currentBrainstorm.getCompletionDate());
+            intent.putExtra("participants", currentBrainstorm.getParticipants());
+            intent.putExtra("details", currentBrainstorm.getDetails());
+            v.getContext().startActivity(intent);
+        });
     }
 
     class BrainstormViewHolder extends RecyclerView.ViewHolder {

@@ -4,13 +4,16 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.lifecycle.LiveData;
 
+import com.example.stormmasterclient.helpers.API.APIConfig;
 import com.example.stormmasterclient.helpers.API.ApiService;
 import com.example.stormmasterclient.helpers.others.LoggerOut;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import java.io.IOException;
 import java.util.List;
@@ -23,7 +26,7 @@ public class BrainstormRepository {
     private final BrainstormDao brainstormDao;
     private final ApiService apiService;
 
-    private static final String BASE_URL = "http://192.168.0.126:8000/";
+    private static final String BASE_URL = APIConfig.BASE_URL;
 
     private final String token;
     private final LiveData<List<BrainstormEntity>> localData;
@@ -60,9 +63,7 @@ public class BrainstormRepository {
                     brainstormDao.insertAll(response.body());
                     displayToast("Информация о мозговых штурмах успешно обновлена");
                 } else if(response.code() == 401){
-                    displayToast("Ваша авторизация устарела. Авторизуйтесь повторно");
-                    LoggerOut loggerOut = new LoggerOut(context);
-                    loggerOut.logOut();
+                    logOut();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -72,8 +73,36 @@ public class BrainstormRepository {
         });
     }
 
+    public void deleteById(int id){
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            try{
+                Response<JsonElement> response = apiService.deleteUserBrainstorm("Token " + token, id).execute();
+                if(response.isSuccessful()){
+                    brainstormDao.deleteById(id);
+                    displayToast("Мозговой штурм успешно удален");
+                } else if(response.code() == 401){
+                    logOut();
+                } else if (response.code() == 400 && response.errorBody() != null){
+                    JsonObject jsonObject = new Gson().fromJson(response.errorBody().string(), JsonObject.class);
+                    displayToast(jsonObject.get("detail").getAsString());
+                } else {
+                    displayToast("Не удалось удалить мозговой штурм");
+                }
+            } catch (Exception e){
+                e.printStackTrace();
+                displayToast("Проверьте подключение к интернету");
+            }
+        });
+    }
+
     public void deleteAll(){
         AppDatabase.databaseWriteExecutor.execute(brainstormDao::deleteAll);
+    }
+
+    private void logOut(){
+        displayToast("Ваша авторизация устарела. Авторизуйтесь повторно");
+        LoggerOut loggerOut = new LoggerOut(context);
+        loggerOut.logOut();
     }
 
     private void displayToast(String message){

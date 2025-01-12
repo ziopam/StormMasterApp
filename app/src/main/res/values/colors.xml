@@ -9,6 +9,8 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="beautiful_black">#FF2C2C34</color>
-    <color name="african_violet">#B18FCF</color>
-    <color name="rose_quartz">#978897</color>
+    <color name="beautiful_red">#FFC90419</color>
+    <color name="beautiful_gray">#FF575656</color>
+    <color name="african_violet">#FFB18FCF</color>
+    <color name="rose_quartz">#FF978897</color>
 </resources>
