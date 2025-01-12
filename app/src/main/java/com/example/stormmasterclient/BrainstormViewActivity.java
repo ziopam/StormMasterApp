@@ -5,9 +5,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.LinearLayout;
 
+import com.example.stormmasterclient.helpers.RoomDatabase.BrainstormRepository;
+import com.example.stormmasterclient.helpers.dialogs.DeleteBrainStormDialog;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textview.MaterialTextView;
 
 
@@ -35,6 +40,19 @@ public class BrainstormViewActivity extends AppCompatActivity {
         dateTextView.setText(intent.getStringExtra("date"));
         participantsTextView.setText(intent.getStringExtra("participants"));
         detailsTextView.setText(intent.getStringExtra("details"));
+
+        MaterialButton deleteButton = findViewById(R.id.deleteBrainstormButton);
+        boolean isCreator = intent.getBooleanExtra("isCreator", false);
+        if(!isCreator){
+            deleteButton.setVisibility(MaterialButton.GONE);
+            LinearLayout buttonsLayout = findViewById(R.id.buttonsLayout);
+            buttonsLayout.setWeightSum(4);
+        }
+
+        deleteButton.setOnClickListener(v -> {
+            DeleteBrainStormDialog dialog = new DeleteBrainStormDialog(intent.getIntExtra("id", 0), this);
+            dialog.show();
+        });
     }
 
     @Override

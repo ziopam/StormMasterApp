@@ -47,20 +47,33 @@ public class BrainstormAdapter extends ListAdapter<BrainstormEntity, BrainstormA
     @Override
     public void onBindViewHolder(@NonNull BrainstormViewHolder holder, int position) {
         BrainstormEntity currentBrainstorm = getItem(position);
-        Log.d("BrainstormAdapter", "isCreator" + currentBrainstorm.isCreator());
         String isOwner = currentBrainstorm.isCreator() ? "Создатель" : "Участник";
         String title = currentBrainstorm.getTitle() + " · " + isOwner;
         holder.titleTextView.setText(title);
-        holder.dateTextView.setText(currentBrainstorm.getCompletionDate());
+        String formattedDate = formatDate(currentBrainstorm.getCompletionDate());
+        holder.dateTextView.setText(formattedDate);
 
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), BrainstormViewActivity.class);
+            intent.putExtra("id", currentBrainstorm.getId());
             intent.putExtra("title", currentBrainstorm.getTitle());
-            intent.putExtra("date", currentBrainstorm.getCompletionDate());
+            intent.putExtra("date", formattedDate);
             intent.putExtra("participants", currentBrainstorm.getParticipants());
             intent.putExtra("details", currentBrainstorm.getDetails());
+            intent.putExtra("isCreator", currentBrainstorm.isCreator());
             v.getContext().startActivity(intent);
         });
+    }
+
+    private String formatDate(String originalDate) {
+        if (originalDate == null || originalDate.isEmpty()) {
+            return "";
+        }
+        String[] parts = originalDate.split("-");
+        if (parts.length == 3) {
+            return parts[2] + "." + parts[1] + "." + parts[0]; // DD.MM.YYYY
+        }
+        return originalDate;
     }
 
     class BrainstormViewHolder extends RecyclerView.ViewHolder {

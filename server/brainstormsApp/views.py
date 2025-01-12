@@ -21,10 +21,13 @@ class DeleteUserBrainstormView(APIView):
 
     def post(self, request, *args, **kwargs):
         brainstorm_id = kwargs.get('pk')
-        brainstorm = Brainstorm.objects.get(id=brainstorm_id)
+        try:
+            brainstorm = Brainstorm.objects.get(id=brainstorm_id)
+        except Brainstorm.DoesNotExist:
+            return Response({'detail': 'Отсутствует мозговой штурм с данным id'}, status=404)
 
-        if brainstorm is None:
-            return Response({'detail': 'Отсутствует мозговой штурм с данным id'}, status=400)
+        self.check_object_permissions(request, brainstorm)
+
         if brainstorm.isInProgress:
             return Response({'detail': 'Мозговой штурм находится в процессе'}, status=400)
 
