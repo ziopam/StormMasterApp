@@ -35,8 +35,10 @@ public class DeleteBrainStormDialog {
         String LineSeparator = System.lineSeparator();
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity)
                 .setTitle("Удалить мозговой штурм")
-                .setMessage("Вы уверены, что хотите удалить этот мозговой штурм? Это действие нельзя отменить." + LineSeparator +
-                        "При удалении мозгового штурма произойдет следующее:" + LineSeparator + LineSeparator +
+                .setMessage("Вы уверены, что хотите удалить этот мозговой штурм? Это действие нельзя отменить." +
+                                LineSeparator + LineSeparator +
+                        "При удалении мозгового штурма произойдет следующее:"
+                        + LineSeparator + LineSeparator +
                         "1. Вы больше не сможете получить доступ к данным, если не сохранили их." + LineSeparator +
                         "2. Все участники мозгового штурма также потеряют доступ к данным." + LineSeparator +
                         "3. У других участников мозгового штурма все равно могла остаться копия информации, если " +
@@ -48,7 +50,7 @@ public class DeleteBrainStormDialog {
                             preferences.getString("token", "null"));
                     repository.deleteById(idToDelete, activity);
                 })
-                .setIcon(R.drawable.exit_icon)
+                .setIcon(R.drawable.delete_icon)
                 .setCancelable(true);
         AlertDialog dialog = builder.show();
 
