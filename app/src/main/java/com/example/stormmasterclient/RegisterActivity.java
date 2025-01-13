@@ -14,13 +14,25 @@ import com.example.stormmasterclient.helpers.TextWatchers.UserNameTextWatcher;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
 
+/**
+ * Activity for user registration.
+ */
 public class RegisterActivity extends AppCompatActivity {
 
+    /**
+     * Called when the activity is first created.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut
+     *                           down then this Bundle contains the data it most recently supplied in
+     *                           onSaveInstanceState(Bundle). Otherwise it is null.
+     * @see ApiClient
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
+        // Initialize and set up TextInput UI elements
         TextInputLayout usernameLayout = findViewById(R.id.userNameRegView);
         EditText usernameEditText = findViewById(R.id.userNameRegEditText);
         usernameEditText.addTextChangedListener(new UserNameTextWatcher(usernameLayout));
@@ -34,10 +46,13 @@ public class RegisterActivity extends AppCompatActivity {
         repeatPasswordEditText.addTextChangedListener(new RepeatPasswordTextWatcher(repeatPasswordLayout,
                 passwordEditText));
 
+        // Create an instance of ApiClient for user registration
         ApiClient apiClient = new ApiClient(RegisterActivity.this);
 
+        // Set up the registration button
         MaterialButton registerButton = findViewById(R.id.registerButton);
         registerButton.setOnClickListener(view -> {
+            // Check if all fields are filled correctly
             if(usernameLayout.getError() == null && passwordLayout.getError() == null
                     && repeatPasswordLayout.getError() == null) {
                 String username = usernameEditText.getText().toString();
@@ -49,13 +64,13 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
+        // Set up the button to go to the login screen
         MaterialButton goToLoginButton = findViewById(R.id.goToLoginButton);
         goToLoginButton.setOnClickListener(view -> {
+            // Navigate to LoginActivity
             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
             startActivity(intent);
         });
 
     }
-
-
 }

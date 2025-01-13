@@ -3,6 +3,9 @@ package com.example.stormmasterclient.helpers.RoomDatabase;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+/**
+ * Entity class for a brainstorm.
+ */
 @Entity(tableName = "brainstorm_table")
 public class BrainstormEntity {
 
