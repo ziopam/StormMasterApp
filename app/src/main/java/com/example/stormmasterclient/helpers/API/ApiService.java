@@ -8,6 +8,7 @@ import java.util.List;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
@@ -71,6 +72,6 @@ public interface ApiService {
      * @param id The ID of the brainstorm to be deleted.
      * @return A call object for the delete request.
      */
-    @POST("api/delete_user_brainstorm/{id}/")
+    @DELETE("api/delete_user_brainstorm/{id}/")
     Call<JsonElement> deleteUserBrainstorm(@Header("Authorization") String token, @Path("id") int id);
 }

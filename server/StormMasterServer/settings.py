@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
+    'drf_yasg',
     'customUser.apps.CustomUserConfig',
     'brainstormsApp.apps.BrainstormsAppConfig',
 ]
@@ -145,19 +146,9 @@ REST_FRAMEWORK ={
 DJOSER = {
     'PERMISSIONS': {
         'user_create': ['rest_framework.permissions.AllowAny'],
-        'user': ['djoser.permissions.CurrentUserOrAdmin'],
         'set_password': ['djoser.permissions.CurrentUserOrAdmin'],
         'token_create': ['rest_framework.permissions.AllowAny'],
         'token_destroy': ['rest_framework.permissions.IsAuthenticated'],
-
-        'activation': ['rest_framework.permissions.IsAdminUser'],
-        'password_reset': ['rest_framework.permissions.IsAdminUser'],
-        'password_reset_confirm': ['rest_framework.permissions.IsAdminUser'],
-        'username_reset': ['rest_framework.permissions.IsAdminUser'],
-        'username_reset_confirm': ['rest_framework.permissions.IsAdminUser'],
-        'set_username': ['rest_framework.permissions.IsAdminUser'],
-        'user_delete': ['rest_framework.permissions.IsAdminUser'],
-        'user_list': ['rest_framework.permissions.IsAdminUser'],
     },
     'SERIALIZERS': {
         'user_create': 'customUser.serializers.UserCreateSerializer',
