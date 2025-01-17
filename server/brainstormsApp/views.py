@@ -18,11 +18,38 @@ class GetUserBrainstormsView(APIView):
                               "must be authorized.",
         tags=['brainstorms'],
         responses={
-            200: openapi.Response(description="OK"),
-            401: openapi.Response(description="Unauthorized"),
+            200: openapi.Response(
+                description="OK",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_ARRAY,
+                    items=openapi.Schema(
+                        type=openapi.TYPE_OBJECT,
+                        properties={
+                            "id": openapi.Schema(type=openapi.TYPE_INTEGER, description="ID of the brainstorm"),
+                            "title": openapi.Schema(type=openapi.TYPE_STRING, description="Title of the brainstorm"),
+                            "completionDate": openapi.Schema(type=openapi.TYPE_STRING, format="date",
+                                                             description="Completion date"),
+                            "details": openapi.Schema(type=openapi.TYPE_STRING,
+                                                      description="Details of the brainstorm"),
+                            "participants": openapi.Schema(
+                                type=openapi.TYPE_STRING,
+                                description="Comma-separated usernames of participants"
+                            ),
+                            "isCreator": openapi.Schema(type=openapi.TYPE_BOOLEAN,
+                                                        description="Whether the current user is the creator"),
+                        }
+                    ),
+                ),
+            ),
+            401: openapi.Response(
+                description="Unauthorized", examples={
+                    "application/json": {
+                        "detail": "Учетные данные не были предоставлены."
+                    }
+                },
+            ),
         }
     )
-
     def get(self, request, *args, **kwargs):
         """
         Get all brainstorms that the user has participated in. Token required.
@@ -45,7 +72,6 @@ class DeleteUserBrainstormView(APIView):
             openapi.Parameter(
                 'id',
                 openapi.IN_PATH,
-                description="ID of the brainstorm to delete",
                 type=openapi.TYPE_INTEGER,
                 required=True
             )
@@ -60,17 +86,25 @@ class DeleteUserBrainstormView(APIView):
                                       'detail' : 'Мозговой штурм находится в процессе'
                                   }
             }),
-            401: openapi.Response(description="Unauthorized or user is not the creator of the brainstorm and not the admin", examples={
+            401: openapi.Response(
+                description="Unauthorized", examples={
+                    "application/json": {
+                        "detail": "Учетные данные не были предоставлены."
+                    }
+                },
+            ),
+            403: openapi.Response(
+                description="User is not the creator of the brainstorm and not the admin", examples={
                                   "application/json": {
                                       'detail' : 'У вас недостаточно прав для выполнения данного действия'
-                                  }}),
+                                  }}
+            ),
             404: openapi.Response(description="Brainstorm with the given ID does not exist", examples={
                                   "application/json": {
                                       'detail' : 'Отсутствует мозговой штурм с данным id'
                                   }})
         },
     )
-
     def delete(self, request, *args, **kwargs):
         """
         Delete a brainstorm by its ID. Token required. User must be the creator of the brainstorm or admin.
