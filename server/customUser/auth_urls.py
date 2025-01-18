@@ -5,6 +5,7 @@ from customUser.views import CustomTokenCreateView, CustomTokenDeleteView, Custo
 
 app_name = 'auth'
 
+# The URL patterns for the customUser app
 urlpatterns = [
     path('users/', CustomUserView.as_view({'post': 'create'}), name='user_create'),
     path('users/set_password/', CustomUserView.as_view({'post': 'set_password'}), name='set_password'),

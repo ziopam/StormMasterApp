@@ -106,10 +106,10 @@ AUTH_PASSWORD_VALIDATORS =[
         }
     },
     {
-        'NAME': 'customUser.validators.PasswordLengthValidator',
+        'NAME': 'customUser.validators.PasswordLengthValidator', # Custom validator
     },
     {
-        'NAME': 'customUser.validators.PasswordCharacterValidator',
+        'NAME': 'customUser.validators.PasswordCharacterValidator', # Custom validator
     }
 ]
 
@@ -136,13 +136,14 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
+# REST_FRAMEWORK settings
 REST_FRAMEWORK ={
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ]
 }
 
+# DJOSER settings
 DJOSER = {
     'PERMISSIONS': {
         'user_create': ['rest_framework.permissions.AllowAny'],

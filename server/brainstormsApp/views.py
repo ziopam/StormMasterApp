@@ -10,6 +10,10 @@ from brainstormsApp.serializers import BrainstormSerializer
 
 
 class GetUserBrainstormsView(APIView):
+    """
+    This class is used to get all brainstorms that the user has participated in. The request must be authorized.
+    """
+
     permission_classes = [IsAuthenticated]
 
     # Add information about the endpoint to the documentation
@@ -54,12 +58,18 @@ class GetUserBrainstormsView(APIView):
         """
         Get all brainstorms that the user has participated in. Token required.
         """
+
         user = request.user
         brainstorms = user.participated_brainstorms.all()
         serializer = BrainstormSerializer(brainstorms, many=True, context={'request': request})
         return Response(serializer.data)
 
 class DeleteUserBrainstormView(APIView):
+    """
+    This class is used to delete a brainstorm by its ID. The request must be authorized and be done by the creator of
+    brainstorm or admin.
+    """
+
     permission_classes = [IsOwnerOrAdmin]
 
     # Add information about the endpoint to the documentation

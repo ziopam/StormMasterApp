@@ -5,6 +5,10 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class Brainstorm(models.Model):
+    """
+    This class is used to define the Brainstorm model
+    """
+
     title = models.CharField(max_length=25, null=False, blank=False)
     creator = models.ForeignKey(
         User,

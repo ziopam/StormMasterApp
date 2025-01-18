@@ -6,6 +6,10 @@ from drf_yasg.utils import swagger_auto_schema
 # I create custom views ONLY to write docs for them. The logic of these views is up to djoser.
 
 class CustomTokenCreateView(TokenCreateView):
+    """
+    This class is used to create a custom token creation view. It extends the TokenCreateView class of Djoser and adds
+    documentation to the endpoint.
+    """
 
     # Add information about the endpoint to the documentation
     @swagger_auto_schema(
@@ -42,26 +46,34 @@ class CustomTokenCreateView(TokenCreateView):
 
 
 class CustomTokenDeleteView(TokenDestroyView):
+    """
+    This class is used to create a custom token deletion view. It extends the TokenDestroyView class of Djoser and adds
+    documentation to the endpoint.
+    """
 
-        # Add information about the endpoint to the documentation
-        @swagger_auto_schema(
-            tags=["auth"],
-            operation_id="delete_token_logout",
-            operation_description="Use this endpoint to delete token for user authorisation. The request must be authorized.",
-            responses={
-                204: openapi.Response(description="OK"),
-                401: openapi.Response(description="Unauthorized", examples={
-                    "application/json": {
-                        "detail": "Учетные данные не были предоставлены."
-                    }
-                }),
-            })
+    # Add information about the endpoint to the documentation
+    @swagger_auto_schema(
+        tags=["auth"],
+        operation_id="delete_token_logout",
+        operation_description="Use this endpoint to delete token for user authorisation. The request must be authorized.",
+        responses={
+            204: openapi.Response(description="OK"),
+            401: openapi.Response(description="Unauthorized", examples={
+                "application/json": {
+                    "detail": "Учетные данные не были предоставлены."
+                }
+            }),
+        })
 
-        # Process the DELETE request (using the djoser class method)
-        def post(self, request):
-            return super().post(request)
+    # Process the DELETE request (using the djoser class method)
+    def post(self, request):
+        return super().post(request)
 
 class CustomUserView(djoser.views.UserViewSet):
+    """
+    This class is used to create a custom user view. It extends the UserViewSet class of Djoser and adds documentation to
+    the endpoints.
+    """
 
     # Add information about the endpoint to the documentation
     @swagger_auto_schema(
