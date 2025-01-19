@@ -15,4 +15,17 @@
     <string name="new_password_text">Новый пароль</string>
     <string name="pdf_button_text">PDF</string>
     <string name="delete_button_text">Удалить мозговой штурм</string>
+    <string name="join_brainstorm_text">Присоединиться к мозговому штурму</string>
+    <string name="join_brainstorm_button_text">Присоединиться</string>
+    <string name="close_text">Закрыть</string>
+    <string name="room_code_text">Код комнаты</string>
+    <string name="create_room_text">Создать комнату</string>
+    <string name="brainstorm_name_text">Название мозгового штурма</string>
+    <string name="create_room_for_brainstorm_text">Создать комнату для мозгового штурма</string>
+    <string name="type_of_brainstorm_text">Тип мозгового штурма</string>
+
+    <string-array name="brainstorm_types">
+        <item>Классический</item>
+        <item>Round Robin</item>
+    </string-array>
 </resources>

@@ -10,6 +10,8 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.stormmasterclient.helpers.API.ApiClient;
+import com.example.stormmasterclient.helpers.dialogs.CreateBrainstormDialog;
+import com.example.stormmasterclient.helpers.dialogs.JoinBrainstormDialog;
 import com.example.stormmasterclient.helpers.others.LoggerOut;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigationrail.NavigationRailView;
@@ -72,6 +74,10 @@ public class MainActivity extends AppCompatActivity {
             if (selectedFragment == null) {
                 selectedFragment = new HistoryFragment();
             }
+        } else if (itemId == R.id.brain_storm_create) {
+            new CreateBrainstormDialog(this).show();
+        } else if (itemId == R.id.brain_storm_join) {
+            new JoinBrainstormDialog(this).show();
         } else if (itemId == R.id.profile) {
             selectedFragment = getSupportFragmentManager().findFragmentByTag(ProfileFragment.class.getSimpleName());
             if (selectedFragment == null) {
