@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'customUser.apps.CustomUserConfig',
     'brainstormsApp.apps.BrainstormsAppConfig',
+    'roomApp.apps.RoomAppConfig',
 ]
 
 MIDDLEWARE = [

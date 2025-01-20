@@ -18,6 +18,7 @@ class GetUserBrainstormsView(APIView):
 
     # Add information about the endpoint to the documentation
     @swagger_auto_schema(
+        operation_id="get_user_brainstorms",
         operation_description="Use this endpoint to get all brainstorms that the user has participated in. The request "
                               "must be authorized.",
         tags=['brainstorms'],
@@ -91,11 +92,6 @@ class DeleteUserBrainstormView(APIView):
                     "application/json": {
                         "detail": "ok"
                     }}),
-            400: openapi.Response(description="Brainstorm is in progress", examples={
-                                  "application/json": {
-                                      'detail' : 'Мозговой штурм находится в процессе'
-                                  }
-            }),
             401: openapi.Response(
                 description="Unauthorized", examples={
                     "application/json": {
@@ -129,10 +125,6 @@ class DeleteUserBrainstormView(APIView):
 
         # Check if user is the creator of the brainstorm or admin
         self.check_object_permissions(request, brainstorm)
-
-        # Check if brainstorm is in progress to avoid deletion
-        if brainstorm.isInProgress:
-            return Response({'detail': 'Мозговой штурм находится в процессе'}, status=400)
 
         # Delete the brainstorm
         brainstorm.delete()

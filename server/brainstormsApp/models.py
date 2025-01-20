@@ -21,7 +21,6 @@ class Brainstorm(models.Model):
         related_name="participated_brainstorms"
     )
     details = models.TextField(null=False, blank=False)
-    isInProgress = models.BooleanField(default=True)
 
     def __str__(self):
         return self.title

@@ -1,5 +1,4 @@
 from django.urls import path
-from djoser.views import UserViewSet
 
 from customUser.views import CustomTokenCreateView, CustomTokenDeleteView, CustomUserView
 

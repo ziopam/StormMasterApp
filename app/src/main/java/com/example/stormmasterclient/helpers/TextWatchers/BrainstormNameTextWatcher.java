@@ -41,6 +41,10 @@ public class BrainstormNameTextWatcher implements TextWatcher {
     @Override
     public void afterTextChanged(Editable editable) {
         String brainstormName = editable.toString();
+        if (brainstormName.trim().isEmpty()) {
+            brainstormNameLayout.setError("Название не может состоять только из пробелов");
+            return;
+        }
         if (brainstormName.isEmpty()) {
             brainstormNameLayout.setError("Поле не может быть пустым");
             return;

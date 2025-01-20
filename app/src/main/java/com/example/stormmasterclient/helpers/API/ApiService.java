@@ -2,6 +2,7 @@ package com.example.stormmasterclient.helpers.API;
 
 import com.example.stormmasterclient.helpers.RoomDatabase.BrainstormEntity;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import java.util.List;
 
@@ -74,4 +75,17 @@ public interface ApiService {
      */
     @DELETE("api/delete_user_brainstorm/{id}/")
     Call<JsonElement> deleteUserBrainstorm(@Header("Authorization") String token, @Path("id") int id);
+
+    /**
+     * Creates a new room for brainstorm.
+     * @param token The authorization token of the user.
+     * @param body The request body containing the room data.
+     * @return A call object for the create room request.
+     */
+    @POST("api/rooms/create/")
+    Call<JsonObject> createRoom(@Header("Authorization") String token, @Body RequestBody body);
+
+    @POST("api/rooms/join/")
+    Call<JsonObject> joinRoom(@Header("Authorization") String token, @Body RequestBody body);
+
 }
