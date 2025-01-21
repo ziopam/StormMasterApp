@@ -110,12 +110,16 @@ class JoinRoomView(APIView):
                     type=openapi.TYPE_OBJECT,
                     properties={
                         'isCreator': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                        'participants': openapi.Schema(type=openapi.TYPE_STRING),
+                        'participants_amount': openapi.Schema(type=openapi.TYPE_INTEGER),
                         'isChatStarted': openapi.Schema(type=openapi.TYPE_BOOLEAN)
                     }
                 ),
                 examples={
                     "application/json": {
                         "isCreator": True,
+                        "participants": "user1, user2",
+                        "participants_amount": 2,
                         "isChatStarted": False
                     }
                 }
@@ -161,4 +165,7 @@ class JoinRoomView(APIView):
 
         room.participants.add(user)
         room.save()
-        return Response({'isCreator': room.creator == user,'isChatStarted': room.isChatStarted}, status=200)
+        return Response({'isCreator': room.creator == user,
+                         'participants' : ', '.join([user.username for user in room.participants.all()]),
+                         'participants_amount': room.participants.count(),
+                         'isChatStarted': room.isChatStarted}, status=200)

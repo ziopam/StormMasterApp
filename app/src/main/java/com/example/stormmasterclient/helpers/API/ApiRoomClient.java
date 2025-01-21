@@ -1,9 +1,11 @@
 package com.example.stormmasterclient.helpers.API;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.stormmasterclient.WaitingRoomCreatorActivity;
 import com.example.stormmasterclient.helpers.others.LoggerOut;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -61,8 +63,8 @@ public class ApiRoomClient {
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                if (response.isSuccessful()){
-                    Toast.makeText(context, "Комната успешно создана", Toast.LENGTH_SHORT).show();
+                if (response.isSuccessful() && response.body() != null){
+                    processSuccessfulRoomCreation(response);
                 } else {
                     processCreatingRoomFailure(response);
                 }
@@ -74,6 +76,19 @@ public class ApiRoomClient {
             }
         });
 
+    }
+
+    private void processSuccessfulRoomCreation(Response<JsonObject> response) {
+        Toast.makeText(context, "Комната успешно создана", Toast.LENGTH_SHORT).show();
+
+        // It was checked that the response body is not null
+        assert response.body() != null;
+
+        // Start the WaitingRoomCreatorActivity with the room code
+        Intent intent = new Intent(context, WaitingRoomCreatorActivity.class);
+        intent.putExtra("roomCode", response.body().get("room_code").getAsString());
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        context.startActivity(intent);
     }
 
     /**

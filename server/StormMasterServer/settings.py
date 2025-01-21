@@ -33,6 +33,7 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'djoser',
     'drf_yasg',
+    'channels',
     'customUser.apps.CustomUserConfig',
     'brainstormsApp.apps.BrainstormsAppConfig',
     'roomApp.apps.RoomAppConfig',
@@ -76,8 +78,14 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'StormMasterServer.wsgi.application'
+ASGI_APPLICATION = 'StormMasterServer.asgi.application'
 
+# Settings for Django Channels
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases

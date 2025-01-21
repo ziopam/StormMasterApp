@@ -16,6 +16,12 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".WaitingRoomParticipantActivity"
+            android:exported="false" />
+        <activity
+            android:name=".WaitingRoomCreatorActivity"
+            android:exported="false" />
+        <activity
             android:name=".BrainstormViewActivity"
             android:exported="false" />
         <activity

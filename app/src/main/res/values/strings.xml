@@ -23,6 +23,13 @@
     <string name="brainstorm_name_text">Название мозгового штурма</string>
     <string name="create_room_for_brainstorm_text">Создать комнату для мозгового штурма</string>
     <string name="type_of_brainstorm_text">Тип мозгового штурма</string>
+    <string name="amount_of_participants_text">Количество участников: </string>
+    <string name="theme_info_text">Тема мозгового штурма (её увидят все участники):</string>
+    <string name="theme_edit_hint_text">Опишите, что вы будете обсуждать на мозговом штурме (необязательное поле)</string>
+    <string name="start_brainstorm_button_text">Начать мозговой штурм</string>
+    <string name="delete_room_text">Удалить комнату</string>
+    <string name="waiting_room_for_start_text">Ожидание начала мозгового штурма создателем комнаты</string>
+    <string name="leave_room_text">Покинуть комнату</string>
 
     <string-array name="brainstorm_types">
         <item>Классический</item>
