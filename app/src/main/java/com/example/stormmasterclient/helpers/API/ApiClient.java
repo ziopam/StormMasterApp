@@ -3,18 +3,13 @@ package com.example.stormmasterclient.helpers.API;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.example.stormmasterclient.MainActivity;
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import java.io.IOException;
-
 import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Retrofit;
@@ -25,11 +20,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
  *
  * @see APIConfig
  * @see ApiService
+ * @see ApiProblemsHandler
  */
 public class ApiClient {
     private static final String BASE_URL = APIConfig.BASE_URL;
     private static ApiService apiService;
     private final Context context;
+    private final ApiProblemsHandler problemsHandler;
 
     /**
      * Constructor for ApiClient.
@@ -42,6 +39,7 @@ public class ApiClient {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build().create(ApiService.class);
         this.context = context;
+        this.problemsHandler = new ApiProblemsHandler(context);
     }
 
     /**
@@ -50,7 +48,7 @@ public class ApiClient {
      * @param username The username of the new user.
      * @param password The password of the new user.
      * @see #processSuccessfulUserCreation(JsonElement, String)
-     * @see #processFailedUserCreation(ResponseBody)
+     * @see #processFailedUserCreation(retrofit2.Response)
      */
     public void userRegistration(String username, String password){
         // Create a JSON object with the user registration data
@@ -75,8 +73,7 @@ public class ApiClient {
                 if(response.isSuccessful() && jsonElement != null){
                     processSuccessfulUserCreation(jsonElement, username);
                 } else {
-                    ResponseBody errorBody = response.errorBody();
-                    processFailedUserCreation(errorBody);
+                    processFailedUserCreation(response);
                 }
             }
 
@@ -119,28 +116,17 @@ public class ApiClient {
     /**
      * Processes a failed user creation response.
      *
-     * @param errorBody The response body containing the error data.
+     * @param response The response containing the error data.
      */
-    private void processFailedUserCreation(ResponseBody errorBody){
-        if (errorBody != null) {
-            JsonObject problem;
-
-            // Try to parse the error body to get the error data
-            try{
-                problem = new Gson().fromJson(errorBody.string(), JsonObject.class);
-            }catch (IOException e){
-                e.printStackTrace();
-
-                // Show a toast message to inform the user about the error
-                Toast.makeText(context, "Ошибка при чтении тела ответа сервера", Toast.LENGTH_SHORT).show();
-                return;
-            }
+    private void processFailedUserCreation(retrofit2.Response<JsonElement> response){
+        if (response != null) {
+            JsonObject problem = problemsHandler.processErrorBody(response);
 
             // If parsed successfully, show the error message to the user
-            if(problem.has("username")) {
+            if(problem != null && problem.has("username")) {
                 Toast.makeText(context, problem.get("username").getAsJsonArray().get(0).getAsString(),
                         Toast.LENGTH_SHORT).show();
-            } else if (problem.has("password")) {
+            } else if (problem != null && problem.has("password")) {
                 Toast.makeText(context, problem.get("password").getAsJsonArray().get(0).getAsString(),
                         Toast.LENGTH_SHORT).show();
             }
@@ -157,7 +143,7 @@ public class ApiClient {
      * @param username The username of the user.
      * @param password The password of the user.
      * @see #processSuccessfulUserLogin(JsonElement, String)
-     * @see #processFailedUserLogin(ResponseBody)
+     * @see #processFailedUserLogin(retrofit2.Response)
      */
     public void userLogin(String username, String password){
         // Create a JSON object with the user login data
@@ -182,8 +168,7 @@ public class ApiClient {
                 if(response.isSuccessful() && jsonElement != null){
                     processSuccessfulUserLogin(jsonElement, username);
                 } else {
-                    ResponseBody errorBody = response.errorBody();
-                    processFailedUserLogin(errorBody);
+                    processFailedUserLogin(response);
                 }
             }
 
@@ -228,25 +213,14 @@ public class ApiClient {
     /**
      * Processes a failed user login response.
      *
-     * @param errorBody The response body containing the error data.
+     * @param response The response body containing the error data.
      */
-    private void processFailedUserLogin(ResponseBody errorBody) {
-        if (errorBody != null) {
-            JsonObject problem;
-
-            // Try to parse the error body to get the error data
-            try{
-                problem = new Gson().fromJson(errorBody.string(), JsonObject.class);
-            }catch (IOException e){
-                e.printStackTrace();
-
-                // Show a toast message to inform the user about the error
-                Toast.makeText(context, "Ошибка при чтении тела ответа сервера", Toast.LENGTH_SHORT).show();
-                return;
-            }
+    private void processFailedUserLogin(retrofit2.Response<JsonElement> response) {
+        if (response != null) {
+            JsonObject problem = problemsHandler.processErrorBody(response);
 
             // If parsed successfully, show the error message to the user
-            if(problem.has("non_field_errors")) {
+            if(problem != null && problem.has("non_field_errors")) {
                 Toast.makeText(context, "Неверное имя пользователя или пароль",
                         Toast.LENGTH_SHORT).show();
             }

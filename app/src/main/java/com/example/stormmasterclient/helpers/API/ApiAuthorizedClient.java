@@ -2,21 +2,15 @@ package com.example.stormmasterclient.helpers.API;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.example.stormmasterclient.MainActivity;
 import com.example.stormmasterclient.helpers.others.LoggerOut;
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import java.io.IOException;
-
 import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -28,12 +22,14 @@ import retrofit2.converter.gson.GsonConverterFactory;
  *
  * @see APIConfig
  * @see ApiService
+ * @see ApiProblemsHandler
  */
 public class ApiAuthorizedClient {
     private static final String BASE_URL = APIConfig.BASE_URL;
     private static ApiService apiService;
     private final Context context;
     private final String token;
+    private final ApiProblemsHandler problemsHandler;
 
     /**
      * Constructor for ApiAuthorizedClient.
@@ -48,23 +44,7 @@ public class ApiAuthorizedClient {
                 .build().create(ApiService.class);
         this.context = context;
         this.token = token;
-    }
-
-    /**
-     * Processes a failed connection to the server.
-     */
-    private void processConnectionFailed(){
-        Toast.makeText(context, "Ошибка подключения к серверу. Проверьте ваше подключение к интернету",
-                Toast.LENGTH_SHORT).show();
-    }
-
-    /**
-     * Processes an unauthorized user.
-     */
-    private void processUserUnauthorized(){
-        Toast.makeText(context, "Ваша авторизация устарела. Авторизуйтесь повторно",
-                Toast.LENGTH_SHORT).show();
-        new LoggerOut(context).logOut();
+        this.problemsHandler = new ApiProblemsHandler(context);
     }
 
     /**
@@ -82,13 +62,13 @@ public class ApiAuthorizedClient {
                     Toast.makeText(context, "Вы успешно вышли из аккаунта со всех устройств", Toast.LENGTH_SHORT).show();
                     new LoggerOut(context).logOut();
                 } else {
-                    processUserUnauthorized();
+                    problemsHandler.processUserUnauthorized();
                 }
             }
 
             @Override
             public void onFailure(Call<JsonElement> call, Throwable t) {
-                processConnectionFailed();
+                problemsHandler.processConnectionFailed();
             }
         });
     }
@@ -126,7 +106,7 @@ public class ApiAuthorizedClient {
 
             @Override
             public void onFailure(Call<JsonElement> call, Throwable t) {
-                processConnectionFailed();
+                problemsHandler.processConnectionFailed();
             }
         });
     }
@@ -138,37 +118,20 @@ public class ApiAuthorizedClient {
      */
     private void changePasswordFailed(@NonNull Response<JsonElement> response) {
         if(response.code() == 401) {
-            processUserUnauthorized();
+            problemsHandler.processUserUnauthorized();
         } else if (response.code() == 400) {
-            JsonObject problem;
-
-            // Get the error body and try to parse it
-            try (ResponseBody errorBody = response.errorBody()){
-                if(errorBody != null){
-                    problem = new Gson().fromJson(errorBody.string(), JsonObject.class);
-                } else {
-                    // Inform the user about the error
-                    Toast.makeText(context, "Ошибка при чтении тела ответа сервера", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-            }catch (IOException e){
-                e.printStackTrace();
-
-                // Inform the user about the error
-                Toast.makeText(context, "Ошибка при чтении тела ответа сервера", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            JsonObject problem = problemsHandler.processErrorBody(response);
 
             // Inform the user about the error
-            if(problem.has("current_password")) {
+            if(problem != null && problem.has("current_password")) {
                 Toast.makeText(context, "Неверный текущий пароль", Toast.LENGTH_SHORT)
                         .show();
-            } else if (problem.has("new_password")) {
+            } else if (problem != null && problem.has("new_password")) {
                 Toast.makeText(context, problem.getAsJsonArray("new_password")
                         .get(0).getAsString(), Toast.LENGTH_SHORT).show();
             }
         } else {
-            processConnectionFailed();
+            problemsHandler.processConnectionFailed();
         }
     }
 
