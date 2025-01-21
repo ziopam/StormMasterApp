@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.stormmasterclient.WaitingRoomCreatorActivity;
+import com.example.stormmasterclient.WaitingRoomParticipantActivity;
 import com.example.stormmasterclient.helpers.others.LoggerOut;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -78,6 +79,12 @@ public class ApiRoomClient {
 
     }
 
+
+    /**
+     * Processes a successful creating room request.
+     *
+     * @param response The response of the successful request.
+     */
     private void processSuccessfulRoomCreation(Response<JsonObject> response) {
         Toast.makeText(context, "Комната успешно создана", Toast.LENGTH_SHORT).show();
 
@@ -130,8 +137,8 @@ public class ApiRoomClient {
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                if (response.isSuccessful()){
-                    Toast.makeText(context, "Вы успешно присоединились к комнате", Toast.LENGTH_SHORT).show();
+                if (response.isSuccessful() & response.body() != null){
+                    processSuccessfulJoiningRoom(response, roomCode);
                 } else {
                     processJoiningRoomFailure(response);
                 }
@@ -142,6 +149,29 @@ public class ApiRoomClient {
                 problemsHandler.processConnectionFailed();
             }
         });
+    }
+
+    private void processSuccessfulJoiningRoom(Response<JsonObject> response, String roomCode) {
+        Toast.makeText(context, "Вы успешно присоединились к комнате", Toast.LENGTH_SHORT).show();
+
+        // It was checked that the response body is not null
+        assert response.body() != null;
+
+        // Start the right activity according to the user's role in the room
+        Intent intent;
+        if(response.body().get("isCreator").getAsBoolean()){
+            intent = new Intent(context, WaitingRoomCreatorActivity.class);
+            intent.putExtra("justCreated", false);
+        } else {
+            intent = new Intent(context, WaitingRoomParticipantActivity.class);
+        }
+
+        // Put the necessary data in the intent
+        intent.putExtra("roomCode", roomCode);
+        intent.putExtra("participants", response.body().get("participants").getAsString());
+        intent.putExtra("participantsAmount", response.body().get("participants_amount").getAsInt());
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        context.startActivity(intent);
     }
 
     /**

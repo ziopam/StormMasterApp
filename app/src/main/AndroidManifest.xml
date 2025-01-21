@@ -20,6 +20,7 @@
             android:exported="false" />
         <activity
             android:name=".WaitingRoomCreatorActivity"
+            android:windowSoftInputMode="adjustPan"
             android:exported="false" />
         <activity
             android:name=".BrainstormViewActivity"

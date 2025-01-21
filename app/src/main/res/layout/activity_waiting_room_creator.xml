@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/beautiful_white"
+    android:fitsSystemWindows="false"
     tools:context=".WaitingRoomCreatorActivity">
 
     <com.google.android.material.textview.MaterialTextView
@@ -103,7 +104,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.88"/>
+        app:layout_constraintGuide_percent="0.87" />
 
     <LinearLayout
         android:id="@+id/buttonsLayout"
@@ -112,6 +113,7 @@
         android:layout_marginTop="5dp"
         android:gravity="center"
         android:orientation="vertical"
+        android:weightSum="2"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@id/inputThemeCard"
         app:layout_constraintStart_toStartOf="@id/inputThemeCard"
@@ -127,18 +129,19 @@
             android:autoSizeMaxTextSize="20sp"
             android:autoSizeTextType="uniform"
             android:text="@string/start_brainstorm_button_text"
+            android:layout_weight="1"
             app:layout_constraintBottom_toTopOf="@+id/deleteRoomButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_max="320dp"
-            app:layout_constraintWidth_percent="0.8" />
+            app:layout_constraintWidth_max="320dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/deleteRoomButton"
             style="@style/Widget.Material3.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:autoSizeMaxTextSize="20sp"
             android:autoSizeTextType="uniform"
             android:text="@string/delete_room_text"
