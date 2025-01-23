@@ -1,3 +1,5 @@
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.core.exceptions import ValidationError
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -153,19 +155,120 @@ class JoinRoomView(APIView):
         :return: the response object
         """
 
+        # Check if room_code is in the request
         room_code = request.data.get('room_code')
         if not room_code:
             return Response({'detail': 'Поле room_code обязательно в запросе'}, status=400)
 
-        user = request.user
+        # Check room_code
         try:
             room = Room.objects.get(room_code=room_code)
         except Room.DoesNotExist:
             return Response({'detail': 'Комната с таким кодом не найдена'}, status=404)
 
-        room.participants.add(user)
-        room.save()
+        # Add user to the room
+        user = request.user
+        if not room.participants.contains(user):
+            room.participants.add(user)
+            room.save()
+
+            # If the chat is not started, inform people in waiting room that new person has joined
+            if not room.isChatStarted:
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    f'room_{room_code}',
+                    {
+                        'type': 'user_joined',
+                        'username': user.username
+                    }
+                )
+
         return Response({'isCreator': room.creator == user,
                          'participants' : ', '.join([user.username for user in room.participants.all()]),
                          'participants_amount': room.participants.count(),
                          'isChatStarted': room.isChatStarted}, status=200)
+
+
+class LeaveRoomView(APIView):
+    """
+    This view is used to leave a room
+    """
+    permission_classes = [IsAuthenticated]
+
+    # Add information about the endpoint to the documentation
+    @swagger_auto_schema(
+        operation_id="leave_room",
+        operation_description="Use this endpoint to leave a room. The request must be authorized. The creator of room is "
+                              "not allowed to leave a room. Only delete it.",
+        tags=['rooms'],
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'room_code': openapi.Schema(type=openapi.TYPE_STRING)
+            },
+            required=['room_code']
+        ),
+        responses={
+            200: openapi.Response(description="OK"),
+            400: openapi.Response(
+                description="Error in the room_code field", examples={
+                    "application/json": {
+                        "detail": "Поле room_code обязательно в запросе"
+                    }
+                }
+            ),
+            401: openapi.Response(
+                description="Unauthorized", examples={
+                    "application/json": {
+                        "detail": "Учетные данные не были предоставлены."
+                    }
+                }
+            ),
+            404: openapi.Response(
+                description="Room not found", examples={
+                    "application/json": {
+                        "detail": "Комната с таким кодом не найдена"
+                    }
+                }
+            )
+        }
+    )
+    def post(self, request):
+        """
+        Leave a room
+        :param request: the request object
+        :return: the response object
+        """
+
+        # Check if room_code is in the request
+        room_code = request.data.get('room_code')
+        if not room_code:
+            return Response({'detail': 'Поле room_code обязательно в запросе'}, status=400)
+
+        # Check room_code
+        try:
+            room = Room.objects.get(room_code=room_code)
+        except Room.DoesNotExist:
+            return Response({'detail': 'Комната с таким кодом не найдена'}, status=404)
+
+        # Remove user from the room
+        user = request.user
+        if room.participants.contains(user):
+            if room.creator != user:
+                room.participants.remove(user)
+                room.save()
+
+                # If the chat is not started, inform people in waiting room that person has left
+                if not room.isChatStarted:
+                    channel_layer = get_channel_layer()
+                    async_to_sync(channel_layer.group_send)(
+                        f'room_{room_code}',
+                        {
+                            'type': 'user_left',
+                            'username': user.username
+                        }
+                    )
+
+                return Response({'detail' : 'ok'}, status=200)
+            else:
+                return Response({'detail': 'Создатель комнаты не может покинуть комнату. Только удалить'}, status=400)

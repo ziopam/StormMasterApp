@@ -7,6 +7,7 @@ import okhttp3.*;
 public class WebSocketClient {
 
     private final WebSocket webSocket;
+    public IWebSocketListener listener = null;
 
     public WebSocketClient(String roomCode, String token) {
         OkHttpClient client = new OkHttpClient();
@@ -19,13 +20,15 @@ public class WebSocketClient {
             @Override
             public void onOpen(WebSocket webSocket, Response response) {
                 System.out.println("Connected to WebSocket!");
-                sendMessage("I am connected!");
+
             }
 
             @Override
             public void onMessage(WebSocket webSocket, String text) {
                 System.out.println("Received: " + text);
-                // Handle received messages here
+                if(listener != null) {
+                    listener.onMessageReceived(text);
+                }
             }
 
             @Override

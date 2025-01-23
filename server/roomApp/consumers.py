@@ -69,8 +69,30 @@ class RoomConsumer(AsyncWebsocketConsumer):
 
     async def chat_message(self, event):
         message = event['message']
-
-        # Отправка сообщения на WebSocket
         await self.send(text_data=json.dumps({
             'message': message
+        }))
+
+    async def user_joined(self, event):
+        """
+        This function is called when a user joins the room
+        :param event: event object
+        """
+
+        username = event['username']
+        await self.send(text_data=json.dumps({
+            'type': 'user_joined',
+            'username': username
+        }))
+
+    async def user_left(self, event):
+        """
+        This function is called when a user leaves the room
+        :param event: event object
+        """
+
+        username = event['username']
+        await self.send(text_data=json.dumps({
+            'type': 'user_left',
+            'username': username
         }))

@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import com.example.stormmasterclient.WaitingRoomCreatorActivity;
 import com.example.stormmasterclient.WaitingRoomParticipantActivity;
+import com.example.stormmasterclient.helpers.WebSocket.WebSocketClient;
 import com.example.stormmasterclient.helpers.others.LoggerOut;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -151,6 +152,13 @@ public class ApiRoomClient {
         });
     }
 
+
+    /**
+     * Processes a successful joining room request.
+     *
+     * @param response The response of the successful request.
+     * @param roomCode The code of the room that was joined.
+     */
     private void processSuccessfulJoiningRoom(Response<JsonObject> response, String roomCode) {
         Toast.makeText(context, "Вы успешно присоединились к комнате", Toast.LENGTH_SHORT).show();
 
@@ -188,4 +196,65 @@ public class ApiRoomClient {
             problemsHandler.processConnectionFailed();
         }
     }
+
+    /**
+     * Leaves the room with the given room code.
+     *
+     * @param roomCode The code of the room to leave.
+     * @param webSocketClient The WebSocket client of the room.
+     */
+    public void leaveRoom(String roomCode, WebSocketClient webSocketClient){
+        // Create json object for the request body
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("room_code", roomCode);
+
+        // Create request body
+        RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"),
+                jsonObject.toString());
+
+        Call<JsonObject> call = apiService.leaveRoom("Token " + token, body);
+
+        // Make the request
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                if (response.isSuccessful() & response.body() != null){
+                    processSuccessfulLeavingRoom(response);
+                } else {
+                    processLeavingRoomFailure(response);
+                    webSocketClient.closeWebSocket();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                problemsHandler.processConnectionFailed();
+                webSocketClient.closeWebSocket();
+                problemsHandler.returnToMain();
+            }
+        });
+    }
+
+    /**
+     * Processes a successful leaving room request.
+     * @param response response of the successful request.
+     */
+    private void processSuccessfulLeavingRoom(Response<JsonObject> response) {
+        Toast.makeText(context, "Вы успешно покинули комнату", Toast.LENGTH_SHORT).show();
+        problemsHandler.returnToMain();
+    }
+
+    /**
+     * Processes a failed leaving room request.
+     * @param response response of the failed request.
+     */
+    private void processLeavingRoomFailure(Response<JsonObject> response) {
+        if(response.code() == 401){
+            problemsHandler.processUserUnauthorized();
+        } else {
+            Toast.makeText(context, "Ошибка при покидании комнаты", Toast.LENGTH_SHORT).show();
+            problemsHandler.returnToMain();
+        }
+    }
+
 }
