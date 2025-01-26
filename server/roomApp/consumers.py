@@ -1,7 +1,5 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
-from asgiref.sync import sync_to_async
-from django.contrib.auth.models import AnonymousUser
 
 from .models import Room, User
 
@@ -22,6 +20,7 @@ class RoomConsumer(AsyncWebsocketConsumer):
 
         self.room_code = self.scope['url_route']['kwargs']['room_code']
         self.room_group_name = f'room_{self.room_code}'
+        await self.accept()
 
         # Check if the room exists
         try:
@@ -46,7 +45,9 @@ class RoomConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             self.channel_name
         )
-        await self.accept()
+
+        # Send the sync data
+        await self.send_sync_data()
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
@@ -96,3 +97,23 @@ class RoomConsumer(AsyncWebsocketConsumer):
             'type': 'user_left',
             'username': username
         }))
+
+    async def send_sync_data(self):
+        """
+        This function is called when the user requests the sync data
+        :param event: event object
+        """
+        try:
+            room = await Room.objects.aget(room_code=self.room_code)
+        except Room.DoesNotExist:
+            await self.close(code=4004, reason="Room not found")
+            return
+
+        room_data = {
+            'type': 'sync_data',
+            'participants':  ', '.join([user.username async for user in room.participants.all()]),
+            'participants_amount': await room.participants.acount(),
+            'isChatStarted': room.isChatStarted
+        }
+
+        await self.send(text_data=json.dumps(room_data))

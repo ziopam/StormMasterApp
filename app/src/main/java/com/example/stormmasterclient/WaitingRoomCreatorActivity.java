@@ -3,11 +3,9 @@ package com.example.stormmasterclient;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
-import com.example.stormmasterclient.helpers.WebSocket.IWebSocketListener;
+import com.example.stormmasterclient.helpers.WebSocket.IWebSocketMessageListener;
 import com.example.stormmasterclient.helpers.WebSocket.WebSocketClient;
 import com.google.android.material.textview.MaterialTextView;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 
 /**
@@ -15,7 +13,7 @@ import com.google.gson.JsonObject;
  *
  * @see AbstractWaitingRoom
  */
-public class WaitingRoomCreatorActivity extends AbstractWaitingRoom implements IWebSocketListener {
+public class WaitingRoomCreatorActivity extends AbstractWaitingRoom implements IWebSocketMessageListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,28 +58,4 @@ public class WaitingRoomCreatorActivity extends AbstractWaitingRoom implements I
         webSocketClient = new WebSocketClient(roomCode, token);
         webSocketClient.listener = this;
     }
-
-    @Override
-    public void onMessageReceived(String message) {
-        runOnUiThread(() -> {
-            JsonObject messageData;
-            try {
-                messageData = new Gson().fromJson(message, JsonObject.class);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return;
-            }
-
-            if(messageData.get("type") != null){
-                String type = messageData.get("type").getAsString();
-
-                if(type.equals("user_joined")){
-                    addParticipant(messageData.get("username").getAsString());
-                } else if (type.equals("user_left")){
-                    removeParticipant(messageData.get("username").getAsString());
-                }
-            }
-        });
-    }
-
 }

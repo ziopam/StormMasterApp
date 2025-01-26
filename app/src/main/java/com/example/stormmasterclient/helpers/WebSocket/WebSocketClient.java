@@ -1,47 +1,111 @@
 package com.example.stormmasterclient.helpers.WebSocket;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import com.example.stormmasterclient.helpers.API.APIConfig;
 
 import okhttp3.*;
 
 public class WebSocketClient {
 
-    private final WebSocket webSocket;
-    public IWebSocketListener listener = null;
+    private WebSocket webSocket;
+    private final OkHttpClient client = new OkHttpClient();
+    private boolean isConnectionFailed = false;
+    private final Request request;
+    public IWebSocketMessageListener listener = null;
 
     public WebSocketClient(String roomCode, String token) {
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
+        request = new Request.Builder()
                 .url(APIConfig.BASE_URL_WS + "room/" + roomCode + "/")
                 .addHeader("Authorization", "Token " + token)
                 .build();
+        webSocket = StartNewConnection();
+    }
 
-        webSocket = client.newWebSocket(request, new WebSocketListener() {
+    /**
+     * Starts a new WebSocket connection.
+     *
+     * @return The WebSocket object.
+     */
+    private WebSocket StartNewConnection(){
+         return client.newWebSocket(request, new WebSocketListener() {
+            /**
+            * Called when the connection is opened.
+            *
+            * @param webSocket The WebSocket that was opened.
+            * @param response  The response from the server.
+            */
             @Override
             public void onOpen(WebSocket webSocket, Response response) {
                 System.out.println("Connected to WebSocket!");
-
+                isConnectionFailed = false;
             }
 
+            /**
+             * Called when a message is received.
+             *
+             * @param webSocket The WebSocket that received the message.
+             * @param text      The message that was received.
+             */
             @Override
             public void onMessage(WebSocket webSocket, String text) {
                 System.out.println("Received: " + text);
-                if(listener != null) {
-                    listener.onMessageReceived(text);
-                }
+                sendMessageToListener(text);
             }
 
+            /**
+             * Called when the connection is closed.
+             *
+             * @param webSocket The WebSocket that was closed.
+             * @param code      The status code of the closure.
+             * @param reason    The reason for the closure.
+             */
             @Override
             public void onClosing(WebSocket webSocket, int code, String reason) {
                 System.out.println("Closing WebSocket: " + reason);
+                sendMessageToListener("{'type': 'error', 'error_code':" + code + "}");
                 webSocket.close(1000, null);
             }
 
+            /**
+             * Called when the connection fails.
+             *
+             * @param webSocket The WebSocket that failed.
+             * @param t         The exception that caused the failure.
+             * @param response  The response that was received.
+             */
             @Override
             public void onFailure(WebSocket webSocket, Throwable t, Response response) {
                 t.printStackTrace();
+
+                // Inform the user about the connection failure. Do it only once.
+                if (!isConnectionFailed) {
+                    sendMessageToListener("{'type': 'error', 'error_code': 4000}");
+                }
+                isConnectionFailed = true;
+
+                reconnect();
             }
         });
+    }
+
+    /**
+     * Reconnects to the WebSocket. Takes 3 seconds delay before reconnecting.
+     */
+    private void reconnect(){
+        new Handler(Looper.getMainLooper()).postDelayed(() -> webSocket = StartNewConnection(), 5000);
+    }
+
+    /**
+     * Sends a message to the listener.
+     *
+     * @param message The message to send.
+     */
+    private void sendMessageToListener(String message) {
+        if (listener != null) {
+            listener.onMessageReceived(message);
+        }
     }
 
     public void sendMessage(String message) {
@@ -50,6 +114,9 @@ public class WebSocketClient {
         }
     }
 
+    /**
+     * Closes the WebSocket connection.
+     */
     public void closeWebSocket() {
         if (webSocket != null) {
             webSocket.close(1000, "Client closing connection");

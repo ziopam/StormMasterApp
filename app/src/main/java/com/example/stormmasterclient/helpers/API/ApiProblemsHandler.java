@@ -1,8 +1,10 @@
 package com.example.stormmasterclient.helpers.API;
 
 import android.content.Context;
+import android.content.Intent;
 import android.widget.Toast;
 
+import com.example.stormmasterclient.MainActivity;
 import com.example.stormmasterclient.helpers.others.LoggerOut;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -26,7 +28,7 @@ public class ApiProblemsHandler {
      * Processes a failed connection to the server.
      */
     public void processConnectionFailed(){
-        Toast.makeText(context, "Ошибка подключения к серверу. Проверьте ваше подключение к интернету",
+        Toast.makeText(context, "Ошибка подключения. Проверьте интернет соединение",
                 Toast.LENGTH_SHORT).show();
     }
 
@@ -67,5 +69,14 @@ public class ApiProblemsHandler {
             Toast.makeText(context, "Ошибка при чтении тела ответа сервера", Toast.LENGTH_SHORT).show();
         }
         return problem;
+    }
+
+    /**
+     * Returns to the main activity.
+     */
+    public void returnToMain(){
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        context.startActivity(intent);
     }
 }

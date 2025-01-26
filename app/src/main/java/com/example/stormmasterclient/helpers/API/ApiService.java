@@ -85,7 +85,21 @@ public interface ApiService {
     @POST("api/rooms/create/")
     Call<JsonObject> createRoom(@Header("Authorization") String token, @Body RequestBody body);
 
+    /**
+     * Joins a room.
+     * @param token The authorization token of the user.
+     * @param body The request body containing the room data.
+     * @return A call object for the join room request.
+     */
     @POST("api/rooms/join/")
     Call<JsonObject> joinRoom(@Header("Authorization") String token, @Body RequestBody body);
 
+    /**
+     * Leaves a room.
+     * @param token The authorization token of the user.
+     * @param body The request body containing the room data.
+     * @return A call object for the leave room request.
+     */
+    @POST("api/rooms/leave/")
+    Call<JsonObject> leaveRoom(@Header("Authorization") String token, @Body RequestBody body);
 }
