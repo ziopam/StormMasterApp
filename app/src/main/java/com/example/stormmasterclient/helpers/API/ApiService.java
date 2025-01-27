@@ -102,4 +102,22 @@ public interface ApiService {
      */
     @POST("api/rooms/leave/")
     Call<JsonObject> leaveRoom(@Header("Authorization") String token, @Body RequestBody body);
+
+    /**
+     * Deletes a room.
+     * @param token The authorization token of the user.
+     * @param roomCode The code of the room to delete.
+     * @return A call object for the delete room request.
+     */
+    @DELETE("api/rooms/delete/{room_code}/")
+    Call<JsonObject> deleteRoom(@Header("Authorization") String token, @Path("room_code") String roomCode);
+
+    /**
+     * Starts a brainstorm.
+     * @param token The authorization token of the user.
+     * @param body The request body containing the room data.
+     * @return A call object for the start brainstorm request.
+     */
+    @POST("api/rooms/start/")
+    Call<JsonObject> startBrainstorm(@Header("Authorization") String token, @Body RequestBody body);
 }

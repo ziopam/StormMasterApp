@@ -25,7 +25,7 @@ public class ApiProblemsHandler {
     }
 
     /**
-     * Processes a failed connection to the server.
+     * Processes a failed connection to the server. Shows toast to the user.
      */
     public void processConnectionFailed(){
         Toast.makeText(context, "Ошибка подключения. Проверьте интернет соединение",
@@ -33,7 +33,7 @@ public class ApiProblemsHandler {
     }
 
     /**
-     * Processes an unauthorized user.
+     * Processes an unauthorized user. Shows toast and logs out the user.
      */
     public void processUserUnauthorized(){
         Toast.makeText(context, "Ваша авторизация устарела. Авторизуйтесь повторно",

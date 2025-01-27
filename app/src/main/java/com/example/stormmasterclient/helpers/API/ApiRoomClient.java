@@ -1,13 +1,18 @@
 package com.example.stormmasterclient.helpers.API;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.stormmasterclient.AbstractWaitingRoom;
+import com.example.stormmasterclient.ChatActivity;
 import com.example.stormmasterclient.WaitingRoomCreatorActivity;
 import com.example.stormmasterclient.WaitingRoomParticipantActivity;
 import com.example.stormmasterclient.helpers.WebSocket.WebSocketClient;
+import com.example.stormmasterclient.helpers.dialogs.IRepeatable;
+import com.example.stormmasterclient.helpers.dialogs.RepeatActionDialog;
 import com.example.stormmasterclient.helpers.others.LoggerOut;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -52,6 +57,10 @@ public class ApiRoomClient {
         this.problemsHandler = new ApiProblemsHandler(context);
     }
 
+    /**
+     * Creates a room with the given title.
+     * @param title
+     */
     public void createRoom(String title){
         // Create json object for the request body
         JsonObject jsonObject = new JsonObject();
@@ -198,7 +207,7 @@ public class ApiRoomClient {
     }
 
     /**
-     * Leaves the room with the given room code.
+     * Leaves the room with the given room code. Close the WebSocket client of the room.
      *
      * @param roomCode The code of the room to leave.
      * @param webSocketClient The WebSocket client of the room.
@@ -222,8 +231,8 @@ public class ApiRoomClient {
                     processSuccessfulLeavingRoom(response);
                 } else {
                     processLeavingRoomFailure(response);
-                    webSocketClient.closeWebSocket();
                 }
+                webSocketClient.closeWebSocket();
             }
 
             @Override
@@ -257,4 +266,95 @@ public class ApiRoomClient {
         }
     }
 
+    /**
+     * Deletes the room with the given room code. Closes the WebSocket client of the room.
+     *
+     * @param roomCode The code of the room to delete.
+     * @param webSocketClient The WebSocket client of the room.
+     * @param activity The activity in which the repeat action dialog should be displayed. (If
+     *                 connection goes wrong).
+     */
+    public void deleteRoom(String roomCode, WebSocketClient webSocketClient, Activity activity){
+        Call<JsonObject> call = apiService.deleteRoom("Token " + token, roomCode);
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                if (response.isSuccessful() & response.body() != null){
+                    webSocketClient.closeWebSocket();
+                    problemsHandler.returnToMain();
+                } else {
+                    processDeletingRoomFailure(response, webSocketClient);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                new RepeatActionDialog(() -> deleteRoom(roomCode, webSocketClient, activity),
+                        activity, webSocketClient).show();
+            }
+        });
+    }
+
+    /**
+     * Processes a failed deleting room request.
+     *
+     * @param response The response of the failed request.
+     * @param webSocketClient The WebSocket client of the room.
+     */
+    private void processDeletingRoomFailure(Response<JsonObject> response, WebSocketClient webSocketClient) {
+        if(response.code() == 401){
+            problemsHandler.processUserUnauthorized();
+            webSocketClient.closeWebSocket();
+            return;
+        } else if(response.code() == 404) {
+            Toast.makeText(context, "Данная комната уже удалена", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(context, "Ошибка при удалении комнаты", Toast.LENGTH_SHORT).show();
+        }
+        problemsHandler.returnToMain();
+        webSocketClient.closeWebSocket();
+    }
+
+    public void startBrainStorm(String roomCode, String details, Activity activity,
+                                WebSocketClient webSocketClient){
+        // Create json object for the request body
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("room_code", roomCode);
+        jsonObject.addProperty("details", details);
+
+        // Create request body
+        RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"),
+                jsonObject.toString());
+
+        Call<JsonObject> call = apiService.startBrainstorm("Token " + token, body);
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                if (response.isSuccessful() & response.body() != null){
+                    AbstractWaitingRoom.startChatActivity(activity, roomCode, true);
+                } else {
+                    processStartBrainstormFailure(response);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                problemsHandler.processConnectionFailed();
+                new RepeatActionDialog(() -> startBrainStorm(roomCode, details, activity, webSocketClient),
+                        activity, webSocketClient).show();
+            }
+        });
+    }
+
+    private void processStartBrainstormFailure(Response<JsonObject> response) {
+        if(response.code() == 401){
+            problemsHandler.processUserUnauthorized();
+            return;
+        } else if (response.code() == 404) {
+            Toast.makeText(context, "Данной комнаты не существует", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(context, "Ошибка при попытке начать мозгового штурма", Toast.LENGTH_SHORT).show();
+        }
+        problemsHandler.returnToMain();
+    }
 }

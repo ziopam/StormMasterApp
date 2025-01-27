@@ -26,13 +26,16 @@ public class WaitingRoomParticipantActivity extends AbstractWaitingRoom implemen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_waiting_room_participant);
 
+        // Set flag for the creator of the room (used for moving to chat activity)
+        isCreator = false;
+
         // Get data from SharedPreferences
         SharedPreferences preferences = getSharedPreferences("USER_DATA", MODE_PRIVATE);
         String token = preferences.getString("token", "");
         apiRoomClient = new ApiRoomClient(this, token);
 
         // Get data from the intent
-        String roomCode = getIntent().getStringExtra("roomCode");
+        roomCode = getIntent().getStringExtra("roomCode");
         String participantsText = getIntent().getStringExtra("participants");
         participantsAmountValue = getIntent().getIntExtra("participantsAmount", 1);
 

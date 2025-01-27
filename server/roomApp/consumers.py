@@ -98,10 +98,27 @@ class RoomConsumer(AsyncWebsocketConsumer):
             'username': username
         }))
 
+    async def chat_started(self, event):
+        """
+        This function is called when the chat is started
+        :param event: event object (not used)
+        """
+
+        await self.send(text_data=json.dumps({
+            'type': 'chat_started'
+        }))
+
+    async def room_deleted(self, event):
+        """
+        This function is called when the room is deleted
+        :param event: event object (not used)
+        """
+
+        await self.close(code=4004, reason="Room deleted")
+
     async def send_sync_data(self):
         """
         This function is called when the user requests the sync data
-        :param event: event object
         """
         try:
             room = await Room.objects.aget(room_code=self.room_code)
@@ -109,11 +126,18 @@ class RoomConsumer(AsyncWebsocketConsumer):
             await self.close(code=4004, reason="Room not found")
             return
 
-        room_data = {
-            'type': 'sync_data',
-            'participants':  ', '.join([user.username async for user in room.participants.all()]),
-            'participants_amount': await room.participants.acount(),
-            'isChatStarted': room.isChatStarted
-        }
+        # Send data according to the room state
+        if room.isChatStarted:
+            room_data = {
+                'type': 'sync_data',
+                'isChatStarted': True
+            }
+        else:
+            room_data = {
+                'type': 'sync_data',
+                'participants':  ', '.join([user.username async for user in room.participants.all()]),
+                'participants_amount': await room.participants.acount(),
+                'isChatStarted': False
+            }
 
         await self.send(text_data=json.dumps(room_data))

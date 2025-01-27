@@ -2,9 +2,13 @@ package com.example.stormmasterclient;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.EditText;
 
+import com.example.stormmasterclient.helpers.API.ApiRoomClient;
 import com.example.stormmasterclient.helpers.WebSocket.IWebSocketMessageListener;
 import com.example.stormmasterclient.helpers.WebSocket.WebSocketClient;
+import com.example.stormmasterclient.helpers.dialogs.DeleteRoomDialog;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textview.MaterialTextView;
 
 
@@ -14,11 +18,15 @@ import com.google.android.material.textview.MaterialTextView;
  * @see AbstractWaitingRoom
  */
 public class WaitingRoomCreatorActivity extends AbstractWaitingRoom implements IWebSocketMessageListener {
+    private ApiRoomClient apiRoomClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_waiting_room_creator);
+
+        // Set flag for the creator of the room (used for moving to chat activity)
+        isCreator = true;
 
         // Get data from SharedPreferences
         SharedPreferences preferences = getSharedPreferences("USER_DATA", MODE_PRIVATE);
@@ -29,7 +37,7 @@ public class WaitingRoomCreatorActivity extends AbstractWaitingRoom implements I
         participantsAmount = findViewById(R.id.participantsNumberTextView);
 
         // Get room code from the intent
-        String roomCode = getIntent().getStringExtra("roomCode");
+        roomCode = getIntent().getStringExtra("roomCode");
 
         // Show room code in the header
         String header = appName.getText().toString() + " · " + roomCode;
@@ -55,7 +63,25 @@ public class WaitingRoomCreatorActivity extends AbstractWaitingRoom implements I
                 + " " + participantsAmountValue;
         participantsAmount.setText(participantsAmountText);
 
+        // Set up the WebSocket and API clients
         webSocketClient = new WebSocketClient(roomCode, token);
         webSocketClient.listener = this;
+        apiRoomClient = new ApiRoomClient(this, token);
+
+        // Set up the delete button
+        MaterialButton deleteButton = findViewById(R.id.deleteRoomButton);
+        deleteButton.setOnClickListener(v -> {
+            new DeleteRoomDialog(roomCode, webSocketClient, apiRoomClient, this).show();
+        });
+
+        EditText themeEditText = findViewById(R.id.themeEditText);
+
+        // Set up the start button
+        MaterialButton startButton = findViewById(R.id.startBrainstormButton);
+        startButton.setOnClickListener(v -> {
+            apiRoomClient.startBrainStorm(roomCode, themeEditText.getText().toString(),this,
+                    webSocketClient);
+        });
+
     }
 }

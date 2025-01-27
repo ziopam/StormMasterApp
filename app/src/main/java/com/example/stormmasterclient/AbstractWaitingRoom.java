@@ -1,5 +1,7 @@
 package com.example.stormmasterclient;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -26,6 +28,8 @@ public abstract class AbstractWaitingRoom extends AppCompatActivity implements I
     protected MaterialTextView participants;
     protected MaterialTextView participantsAmount;
     protected ApiProblemsHandler apiProblemsHandler;
+    protected String roomCode;
+    protected boolean isCreator;
 
     /**
      * Called when the activity is starting.
@@ -64,9 +68,21 @@ public abstract class AbstractWaitingRoom extends AppCompatActivity implements I
                     case "error": handleErrors(messageData); break;
                     case "user_joined": addParticipant(messageData.get("username").getAsString()); break;
                     case "user_left": removeParticipant(messageData.get("username").getAsString()); break;
+                    case "chat_started": startChatActivity(this, roomCode, isCreator); break;
                 }
             }
         });
+    }
+
+    /**
+     * Starts the chat activity.
+     */
+    public static void startChatActivity(Context context, String roomCode, boolean isCreator) {
+        Intent intent = new Intent(context, ChatActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra("roomCode", roomCode);
+        intent.putExtra("isCreator", isCreator);
+        context.startActivity(intent);
     }
 
     /**
@@ -79,6 +95,8 @@ public abstract class AbstractWaitingRoom extends AppCompatActivity implements I
             if(!data.get("isChatStarted").getAsBoolean()){
                 setParticipantsAndAmount(data.get("participants").getAsString(),
                         data.get("participants_amount").getAsInt());
+            } else {
+                startChatActivity(this, roomCode, isCreator);
             }
         });
     }
