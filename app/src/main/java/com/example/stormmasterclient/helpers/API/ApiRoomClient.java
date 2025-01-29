@@ -331,7 +331,7 @@ public class ApiRoomClient {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 if (response.isSuccessful() & response.body() != null){
-                    AbstractWaitingRoom.startChatActivity(activity, roomCode, true);
+                    AbstractWaitingRoom.startChatActivity(activity, roomCode, true, webSocketClient);
                 } else {
                     processStartBrainstormFailure(response);
                 }

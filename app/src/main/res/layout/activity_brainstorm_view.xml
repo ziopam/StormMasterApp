@@ -99,6 +99,7 @@
                 android:layout_height="match_parent"
                 android:id="@+id/brainstormDetails"
                 android:textColor="@color/beautiful_black"
+                android:breakStrategy="balanced"
                 android:autoSizeTextType="uniform"
                 android:autoSizeMaxTextSize="15dp"
                 android:autoSizeStepGranularity="2dp"

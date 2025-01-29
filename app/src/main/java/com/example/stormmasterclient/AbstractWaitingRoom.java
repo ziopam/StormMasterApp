@@ -68,7 +68,7 @@ public abstract class AbstractWaitingRoom extends AppCompatActivity implements I
                     case "error": handleErrors(messageData); break;
                     case "user_joined": addParticipant(messageData.get("username").getAsString()); break;
                     case "user_left": removeParticipant(messageData.get("username").getAsString()); break;
-                    case "chat_started": startChatActivity(this, roomCode, isCreator); break;
+                    case "chat_started": startChatActivity(this, roomCode, isCreator, webSocketClient); break;
                 }
             }
         });
@@ -77,11 +77,12 @@ public abstract class AbstractWaitingRoom extends AppCompatActivity implements I
     /**
      * Starts the chat activity.
      */
-    public static void startChatActivity(Context context, String roomCode, boolean isCreator) {
+    public static void startChatActivity(Context context, String roomCode, boolean isCreator, WebSocketClient webSocketClient) {
         Intent intent = new Intent(context, ChatActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.putExtra("roomCode", roomCode);
         intent.putExtra("isCreator", isCreator);
+        ChatActivity.webSocketClient = webSocketClient;
         context.startActivity(intent);
     }
 
@@ -96,7 +97,7 @@ public abstract class AbstractWaitingRoom extends AppCompatActivity implements I
                 setParticipantsAndAmount(data.get("participants").getAsString(),
                         data.get("participants_amount").getAsInt());
             } else {
-                startChatActivity(this, roomCode, isCreator);
+                startChatActivity(this, roomCode, isCreator, webSocketClient);
             }
         });
     }

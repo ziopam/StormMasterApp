@@ -57,20 +57,40 @@ class RoomConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        message = text_data_json['message']
 
-        print(f"Received message: {message}")
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'chat_message',
-                'message': message
-            }
-        )
+        # Check if the room exists
+        try:
+            room = await Room.objects.aget(room_code=self.room_code)
+        except Room.DoesNotExist:
+            await self.close(code=4004, reason="Room not found")
+            return
 
-    async def chat_message(self, event):
+        # Check if chat is started
+        if room.isChatStarted:
+            message_type = text_data_json['type']
+            if message_type == 'new_message':
+                message = text_data_json['message']
+                if message:
+                    await self.channel_layer.group_send(
+                        self.room_group_name,
+                        {
+                            'type': 'new_message',
+                            'username': self.scope['user'].username,
+                            'message': message
+                        }
+                    )
+
+    async def new_message(self, event):
+        """
+        This function is called when a new message is received
+        :param event: event object
+        """
+
+        username = event['username']
         message = event['message']
         await self.send(text_data=json.dumps({
+            'type': 'new_message',
+            'username': username,
             'message': message
         }))
 

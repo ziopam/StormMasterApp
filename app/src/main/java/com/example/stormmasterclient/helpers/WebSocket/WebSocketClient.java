@@ -5,6 +5,8 @@ import android.os.Looper;
 
 import com.example.stormmasterclient.helpers.API.APIConfig;
 
+import java.io.Serializable;
+
 import okhttp3.*;
 
 /**
@@ -117,7 +119,7 @@ public class WebSocketClient {
 
     public void sendMessage(String message) {
         if (webSocket != null) {
-            webSocket.send("{\"message\": \"" + message + "\"}");
+            webSocket.send(message);
         }
     }
 

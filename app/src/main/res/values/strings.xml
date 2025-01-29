@@ -30,6 +30,13 @@
     <string name="delete_room_text">Удалить комнату</string>
     <string name="waiting_room_for_start_text">Ожидание начала мозгового штурма создателем комнаты</string>
     <string name="leave_room_text">Покинуть комнату</string>
+    <string name="show_ideas_text">Просмотреть идеи</string>
+    <string name="input_message_hint">Введите сообщение</string>
+    <string name="send_message_text">Отправить сообщение</string>
+    <string name="history_text">История</string>
+    <string name="create_text">Создать</string>
+    <string name="profile_text">Профиль</string>
+    <string name="idea_number_text">Идея </string>
 
     <string-array name="brainstorm_types">
         <item>Классический</item>

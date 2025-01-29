@@ -11,7 +11,7 @@ import com.google.android.material.textview.MaterialTextView;
 
 
 /**
- * An abstract class that represents a waiting room.
+ * An activity that represents a waiting room for the participant of the room.
  */
 public class WaitingRoomParticipantActivity extends AbstractWaitingRoom implements IWebSocketMessageListener {
 

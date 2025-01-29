@@ -4,12 +4,12 @@
         android:id="@+id/history"
         android:enabled="true"
         android:icon="@drawable/brainstorm_icon"
-        android:title="История"/>
+        android:title="@string/history_text"/>
     <item
         android:id="@+id/brain_storm_create"
         android:enabled="true"
         android:icon="@drawable/add_brain_storm_icon"
-        android:title="Создать"
+        android:title="@string/create_text"
         />
     <item
         android:id="@+id/brain_storm_join"
@@ -20,5 +20,5 @@
         android:id="@+id/profile"
         android:enabled="true"
         android:icon="@drawable/user_icon"
-        android:title="Профиль"/>
+        android:title="@string/profile_text"/>
 </menu>
