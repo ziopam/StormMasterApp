@@ -102,7 +102,7 @@ public class WebSocketClient {
     /**
      * Reconnects to the WebSocket. Takes 3 seconds delay before reconnecting.
      */
-    private void reconnect(){
+    public void reconnect(){
         handler.postDelayed(reconnectRunnable, 3000);
     }
 

@@ -8,7 +8,7 @@ public class APIConfig {
     /**
      * The base URL for the API.
      */
-    public static final String BASE_URL = "http://192.168.0.193:8000/";
+    public static final String BASE_URL = "http://10.110.90.155:8000/";
 
     /**
      * The base URL for the WebSocket.

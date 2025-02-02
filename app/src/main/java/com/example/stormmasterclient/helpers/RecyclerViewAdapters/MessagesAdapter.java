@@ -42,6 +42,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
             // Hide the nickname
             holder.nicknameTextView.setVisibility(View.GONE);
 
+            // Move message to the right side
             constraintSet.clear(holder.cardView.getId(), ConstraintSet.START);
             constraintSet.connect(holder.cardView.getId(), ConstraintSet.END,
                     ConstraintSet.PARENT_ID, ConstraintSet.END, 15);
