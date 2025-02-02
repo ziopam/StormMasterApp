@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.8"
+        app:layout_constraintWidth_max="320dp">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/textView"
+            android:autoSizeMaxTextSize="25dp"
+            android:autoSizeTextType="uniform"
+            android:textColor="@color/beautiful_black"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:gravity="center"
+            android:text="@string/create_room_for_brainstorm_text" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/brainstormNameInputLayout"
+            style="?attr/textInputOutlinedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            app:counterEnabled="true"
+            app:counterMaxLength="25">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/brainstormNameEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:hint="@string/brainstorm_name_text"
+                android:maxLength="25"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            style="?attr/textInputOutlinedExposedDropdownMenuStyle"
+            android:layout_height="match_parent"
+            android:layout_marginTop="5dp">
+
+            <AutoCompleteTextView
+                android:id="@+id/brainstormTypeAutoCompleteTextView"
+                android:hint="@string/type_of_brainstorm_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                app:simpleItems="@array/brainstorm_types"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/createRoomButton"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/create_room_text"
+            />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/closeButton"
+            style="@style/Widget.Material3.Button"
+            app:backgroundTint="@color/beautiful_red"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:text="@string/close_text"
+            />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

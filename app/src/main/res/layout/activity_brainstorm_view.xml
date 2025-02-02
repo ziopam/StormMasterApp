@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/beautiful_white"
+    tools:context=".BrainstormViewActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="@drawable/arrow_left"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:id="@+id/nameOfAppText"
+        android:text="@string/app_name"
+        android:gravity="center"
+        android:textColor="@color/beautiful_black"
+        android:autoSizeTextType="uniform"
+        android:autoSizeMaxTextSize="20dp"
+        android:autoSizeStepGranularity="2dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+    />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/brainstormTitle"
+        android:textColor="@color/beautiful_black"
+        android:gravity="center"
+        android:autoSizeTextType="uniform"
+        android:autoSizeMaxTextSize="20dp"
+        android:autoSizeStepGranularity="2dp"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.05"
+        app:layout_constraintWidth_percent="0.9"
+        tools:text="Название мозгового штурма"
+        />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/brainstormDate"
+        android:textColor="@color/beautiful_gray"
+        android:gravity="center"
+        android:autoSizeTextType="uniform"
+        android:autoSizeMaxTextSize="20dp"
+        android:autoSizeStepGranularity="2dp"
+        app:layout_constraintTop_toBottomOf="@+id/brainstormTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.025"
+        app:layout_constraintWidth_percent="0.9"
+        tools:text="Дата завершения"
+        />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/brainstormParticipants"
+        android:textColor="@color/beautiful_gray"
+        android:gravity="center"
+        android:autoSizeTextType="uniform"
+        android:autoSizeMaxTextSize="20dp"
+        android:autoSizeStepGranularity="2dp"
+        app:layout_constraintTop_toBottomOf="@+id/brainstormDate"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.025"
+        app:layout_constraintWidth_percent="0.9"
+        tools:text="Список участников"
+        />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/brainstormDescriptionCard"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="8dp"
+        app:contentPadding="35dp"
+        app:cardCornerRadius="16dp"
+        app:strokeWidth="2dp"
+        app:cardElevation="4dp"
+        app:layout_constraintTop_toBottomOf="@id/brainstormParticipants"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_percent="0.9"
+        app:layout_constraintHeight_percent="0.67">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/brainstormDetails"
+                android:textColor="@color/beautiful_black"
+                android:breakStrategy="balanced"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMaxTextSize="15dp"
+                android:autoSizeStepGranularity="2dp"
+                android:justificationMode="inter_word"
+                android:lineSpacingExtra="4dp"
+                app:layout_constraintTop_toBottomOf="@+id/brainstormDate"
+                tools:text="Информация о мозговом штурме"
+                />
+
+    </com.google.android.material.card.MaterialCardView>
+
+
+    <LinearLayout
+        android:id="@+id/buttonsLayout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:weightSum="2"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/brainstormDescriptionCard"
+        app:layout_constraintWidth_max="320dp"
+        app:layout_constraintWidth_percent="0.8">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/createPDFButton"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.8"
+            android:autoSizeMaxTextSize="20sp"
+            android:autoSizeTextType="uniform"
+            android:text="@string/pdf_button_text"
+            app:layout_constraintBottom_toTopOf="@+id/deleteBrainstormButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_max="320dp"
+            app:layout_constraintWidth_percent="0.8" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/deleteBrainstormButton"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.8"
+            android:autoSizeMaxTextSize="20sp"
+            android:autoSizeTextType="uniform"
+            android:text="@string/delete_button_text"
+            app:backgroundTint="@color/beautiful_red" />
+
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

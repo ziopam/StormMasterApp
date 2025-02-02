@@ -1,3 +1,45 @@
 <resources>
-    <string name="app_name">StormMasterClient</string>
+    <string name="app_name">StormMaster</string>
+    <string name="server_url">http://192.168.0.126:8000/</string>
+    <string name="username_input_hint">Никнейм</string>
+    <string name="password_input_text">Пароль</string>
+    <string name="login_button_text">Войти</string>
+    <string name="go_to_register_text">Нет аккаунта? Зарегистрироваться</string>
+    <string name="register_button_text">Зарегистрироваться</string>
+    <string name="repeat_password_message">Повторите пароль</string>
+    <string name="go_to_login_text">Уже есть аккаунт? Войти</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="logout_text">Выйти</string>
+    <string name="old_password_text">Старый пароль</string>
+    <string name="change_password_text">Сменить пароль</string>
+    <string name="new_password_text">Новый пароль</string>
+    <string name="pdf_button_text">PDF</string>
+    <string name="delete_button_text">Удалить мозговой штурм</string>
+    <string name="join_brainstorm_text">Присоединиться к мозговому штурму</string>
+    <string name="join_brainstorm_button_text">Присоединиться</string>
+    <string name="close_text">Закрыть</string>
+    <string name="room_code_text">Код комнаты</string>
+    <string name="create_room_text">Создать комнату</string>
+    <string name="brainstorm_name_text">Название мозгового штурма</string>
+    <string name="create_room_for_brainstorm_text">Создать комнату для мозгового штурма</string>
+    <string name="type_of_brainstorm_text">Тип мозгового штурма</string>
+    <string name="amount_of_participants_text">Количество участников: </string>
+    <string name="theme_info_text">Тема мозгового штурма (её увидят все участники):</string>
+    <string name="theme_edit_hint_text">Опишите, что вы будете обсуждать на мозговом штурме (необязательное поле)</string>
+    <string name="start_brainstorm_button_text">Начать мозговой штурм</string>
+    <string name="delete_room_text">Удалить комнату</string>
+    <string name="waiting_room_for_start_text">Ожидание начала мозгового штурма создателем комнаты</string>
+    <string name="leave_room_text">Покинуть комнату</string>
+    <string name="show_ideas_text">Просмотреть идеи</string>
+    <string name="input_message_hint">Введите сообщение</string>
+    <string name="send_message_text">Отправить сообщение</string>
+    <string name="history_text">История</string>
+    <string name="create_text">Создать</string>
+    <string name="profile_text">Профиль</string>
+    <string name="idea_number_text">Идея </string>
+
+    <string-array name="brainstorm_types">
+        <item>Классический</item>
+        <item>Round Robin</item>
+    </string-array>
 </resources>

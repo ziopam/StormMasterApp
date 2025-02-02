@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:autofillHints='""'
+    android:background="@color/beautiful_white"
+    tools:context=".LoginActivity">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/userNameLoginView"
+        style="?attr/textInputOutlinedStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/username_input_hint"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.7"
+        app:layout_constraintWidth_max="488dp"
+        app:errorEnabled="true"
+        >
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/userNameLoginEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/passwordLoginView"
+        style="?attr/textInputOutlinedStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/password_input_text"
+        app:layout_constraintEnd_toEndOf="@+id/userNameLoginView"
+        app:layout_constraintStart_toStartOf="@+id/userNameLoginView"
+        app:layout_constraintTop_toBottomOf="@+id/userNameLoginView"
+        app:endIconMode="password_toggle"
+        app:errorEnabled="true">
+
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/passwordLoginEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/loginButton"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:text="@string/login_button_text"
+        android:textSize="20sp"
+        app:layout_constraintWidth_percent="0.35"
+        app:layout_constraintEnd_toEndOf="@+id/userNameLoginView"
+        app:layout_constraintStart_toStartOf="@+id/userNameLoginView"
+        app:layout_constraintTop_toBottomOf="@+id/passwordLoginView"
+        app:layout_constraintWidth_max="244dp" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/nameOfAppText"
+        android:textColor="@color/beautiful_black"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="25dp"
+        android:layout_marginTop="25dp"
+        android:text="@string/app_name"
+        android:lines="1"
+        android:autoSizeTextType="uniform"
+        android:autoSizeMaxTextSize="35sp"
+        android:autoSizeStepGranularity="2sp"
+        android:gravity="center|bottom"
+        app:layout_constraintBottom_toTopOf="@+id/userNameLoginView"
+        app:layout_constraintEnd_toEndOf="@+id/userNameLoginView"
+        app:layout_constraintStart_toStartOf="@+id/userNameLoginView"
+        app:layout_constraintHeight_percent="0.1"
+        />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/goToRegistrationButton"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/go_to_register_text"
+        app:layout_constraintEnd_toEndOf="@+id/loginButton"
+        app:layout_constraintStart_toStartOf="@+id/loginButton"
+        app:layout_constraintTop_toBottomOf="@+id/loginButton" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/beautiful_white"
+    tools:context=".ChatActivity">
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navigationView"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:menu="@menu/chat_participant_menu"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/appNameTextView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:autoSizeMaxTextSize="30dp"
+        android:autoSizeStepGranularity="2dp"
+        android:autoSizeTextType="uniform"
+        android:gravity="center"
+        android:text="@string/app_name"
+        android:textColor="@color/beautiful_black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.05"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@id/navigationView"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="StormMaster · ABCDEF" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/messagesRecyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/messageInputCardView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/navigationView"
+        app:layout_constraintTop_toBottomOf="@+id/appNameTextView"
+        tools:listitem="@layout/message_layout" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/sendMessageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="5dp"
+        android:clickable="true"
+        app:tint="@color/beautiful_white"
+        android:backgroundTint="@color/purple_500"
+        app:borderWidth="0dp"
+        android:contentDescription="@string/send_message_text"
+        app:layout_constraintBottom_toBottomOf="@+id/messageInputCardView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/messageInputCardView"
+        app:srcCompat="@drawable/send_icon" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/messageInputCardView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:maxHeight="200dp"
+        app:layout_constraintHeight_min="48dp"
+        app:layout_constraintHeight_max="200dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="10dp"
+        app:cardCornerRadius="20dp"
+        app:contentPadding="10dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/sendMessageButton"
+        app:layout_constraintStart_toEndOf="@id/navigationView"
+        >
+
+        <EditText
+            android:id="@+id/messageInputEditText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:autofillHints=""
+            android:background="@android:color/transparent"
+            android:hint="@string/input_message_hint"
+            android:inputType="textMultiLine"
+            android:scrollbars="vertical"
+            android:scrollHorizontally="false"
+            android:layout_gravity="center"
+            tools:text="Привет тут такое дело \n\n\n\n\n\n\\n\n\n\n\n\n " />
+    </com.google.android.material.card.MaterialCardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
