@@ -37,6 +37,8 @@
     <string name="create_text">Создать</string>
     <string name="profile_text">Профиль</string>
     <string name="idea_number_text">Идея </string>
+    <string name="finish_brainstorm_text">Завершить мозговой штурм</string>
+    <string name="no_brainstorms_text">Информации о проведенных мозговых штурмах не найдено</string>
 
     <string-array name="brainstorm_types">
         <item>Классический</item>

@@ -6,6 +6,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,6 +22,7 @@ import com.example.stormmasterclient.helpers.RecyclerViewAdapters.MessagesAdapte
 import com.example.stormmasterclient.helpers.TextWatchers.MessageTextWatcher;
 import com.example.stormmasterclient.helpers.WebSocket.IWebSocketMessageListener;
 import com.example.stormmasterclient.helpers.WebSocket.WebSocketClient;
+import com.example.stormmasterclient.helpers.dialogs.DeleteRoomDialog;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -35,25 +37,30 @@ import com.google.gson.JsonObject;
 public class ChatActivity extends AppCompatActivity implements IWebSocketMessageListener {
     private String roomCode;
     private String username;
-    private boolean isCreator;
-    private MessagesAdapter messagesAdapter = new MessagesAdapter();
+    final private MessagesAdapter messagesAdapter = new MessagesAdapter();
     public static WebSocketClient webSocketClient;
     private ApiProblemsHandler apiProblemsHandler;
     private ApiRoomClient apiRoomClient;
 
 
+    /**
+     * Called when the activity is first created.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut
+     * down then this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle).
+     * Otherwise it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        // Get room code from the intent
         roomCode = getIntent().getStringExtra("roomCode");
-        isCreator = getIntent().getBooleanExtra("isCreator", false);
 
-        // Menu set up
+        // Set up menu, so it will lock different on different screens
         NavigationView navigationView = findViewById(R.id.navigationView);
         if(navigationView != null) {
+            navigationView.inflateMenu(getCorrectMenu());
             navigationView.setNavigationItemSelectedListener(item -> {
                 handleMenu(item);
                 return true;
@@ -72,7 +79,7 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
         apiProblemsHandler = new ApiProblemsHandler(this);
         apiRoomClient = new ApiRoomClient(this, token);
 
-        // Set new listener
+        // Set new listener to enable new processing of messages
         webSocketClient.listener = this;
 
         // If the username is empty, that means the user is not logged in
@@ -115,6 +122,11 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
         });
     }
 
+    /**
+     * Processes the received message from the WebSocket.
+     *
+     * @param message The received message.
+     */
     @Override
     public void onMessageReceived(String message) {
         JsonObject messageData;
@@ -170,6 +182,11 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
         });
     }
 
+    /**
+     * Handles the new message received from the WebSocket.
+     *
+     * @param messageData The data of the message.
+     */
     private void handleNewMessage(JsonObject messageData){
         String message = messageData.get("message").getAsString();
         String username = messageData.get("username").getAsString();
@@ -182,12 +199,31 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
         });
     }
 
+    /**
+     * Gets the correct menu for the chat.
+     *
+     * @return The correct menu resource id.
+     */
+    private int getCorrectMenu(){
+        boolean isCreator = getIntent().getBooleanExtra("isCreator", false);
+        return isCreator ? R.menu.chat_creator_menu : R.menu.chat_participant_menu;
+    }
+
+    /**
+     * Called on the creation of the options menu.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.chat_participant_menu, menu);
+        getMenuInflater().inflate(getCorrectMenu(), menu);
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Called when an options item is selected.
+     *
+     * @param item The selected menu item.
+     * @return true if the item is selected successfully.
+     */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         handleMenu(item);
@@ -201,8 +237,10 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
      */
     private void handleMenu(MenuItem item){
         if(item.getItemId() == R.id.leaveMenuItem){
-            Log.d("ChatActivity", "Leaving the room");
             apiRoomClient.leaveRoom(roomCode, webSocketClient);
+            webSocketClient.closeWebSocket();
+        } else if (item.getItemId() == R.id.deleteRoomMenuItem){
+            new DeleteRoomDialog(roomCode, webSocketClient, apiRoomClient, this).show();
         }
     }
 }

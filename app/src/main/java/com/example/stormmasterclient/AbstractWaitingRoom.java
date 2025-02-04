@@ -131,7 +131,7 @@ public abstract class AbstractWaitingRoom extends AppCompatActivity implements I
                 webSocketClient.closeWebSocket();
                 apiProblemsHandler.returnToMain();
                 break;
-
+            default: webSocketClient.reconnect();
         }
     }
 

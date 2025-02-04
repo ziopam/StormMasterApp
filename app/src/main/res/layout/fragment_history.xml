@@ -16,5 +16,24 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:listitem="@layout/brain_storm_list_item" />
+        tools:listitem="@layout/brain_storm_list_item"
+        />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/noBrainstormsText"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:autoSizeMaxTextSize="25dp"
+        android:autoSizeTextType="uniform"
+        android:autoSizeStepGranularity="2dp"
+        android:gravity="center"
+        android:text="@string/no_brainstorms_text"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.07"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.9"
+        />
 </androidx.constraintlayout.widget.ConstraintLayout>
