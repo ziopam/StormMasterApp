@@ -9,8 +9,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.stormmasterclient.helpers.API.ApiProblemsHandler;
+import com.example.stormmasterclient.helpers.RoomDatabase.MessagesRepository;
 import com.example.stormmasterclient.helpers.WebSocket.IWebSocketMessageListener;
 import com.example.stormmasterclient.helpers.WebSocket.WebSocketClient;
+import com.example.stormmasterclient.helpers.WebSocket.WebSocketSyncHandler;
 import com.google.android.material.textview.MaterialTextView;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -97,6 +99,13 @@ public abstract class AbstractWaitingRoom extends AppCompatActivity implements I
                 setParticipantsAndAmount(data.get("participants").getAsString(),
                         data.get("participants_amount").getAsInt());
             } else {
+                String username = getSharedPreferences("USER_DATA", 0).getString("username", "");
+                if(username.equals("")){
+                    apiProblemsHandler.processUserUnauthorized();
+                    webSocketClient.closeWebSocket();
+                }
+
+                new WebSocketSyncHandler().handleMessages(data, username, new MessagesRepository(getApplication()));
                 startChatActivity(this, roomCode, isCreator, webSocketClient);
             }
         });

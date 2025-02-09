@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.stormmasterclient.helpers.API.ApiClient;
+import com.example.stormmasterclient.helpers.RoomDatabase.MessagesRepository;
 import com.example.stormmasterclient.helpers.dialogs.CreateBrainstormDialog;
 import com.example.stormmasterclient.helpers.dialogs.JoinBrainstormDialog;
 import com.example.stormmasterclient.helpers.others.LoggerOut;
@@ -42,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
             loggerOut.logOut();
             return;
         }
+
+        // Delete all messages from the database to prevent data duplication
+        new MessagesRepository(getApplication()).deleteAll();
 
         // Set the layout of the activity (since user is authorized)
         setContentView(R.layout.activity_main);

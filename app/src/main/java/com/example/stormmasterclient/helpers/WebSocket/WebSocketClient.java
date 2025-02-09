@@ -23,6 +23,7 @@ public class WebSocketClient {
     private final Runnable reconnectRunnable = new Runnable() {
         @Override
         public void run() {
+            webSocket.cancel();
             webSocket = startNewConnection();
         }
     };
