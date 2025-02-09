@@ -1,7 +1,10 @@
+import asyncio
 import json
+
+from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-from .models import Room, User
+from .models import Room, Message
 
 class RoomConsumer(AsyncWebsocketConsumer):
     """
@@ -13,6 +16,19 @@ class RoomConsumer(AsyncWebsocketConsumer):
         self.room_group_name = None
         self.room_code = None
 
+    async def get_room(self):
+        """
+        This function is used to get the room object. If the room does not exist, the connection is closed
+        :return: Room object or None if the room does not exist
+        """
+
+        try:
+            room = await Room.objects.aget(room_code=self.room_code)
+            return room
+        except Room.DoesNotExist:
+            await self.close(code=4004, reason="Room not found")
+            return None
+
     async def connect(self):
         """
         This function is called when the WebSocket connection is established
@@ -22,12 +38,7 @@ class RoomConsumer(AsyncWebsocketConsumer):
         self.room_group_name = f'room_{self.room_code}'
         await self.accept()
 
-        # Check if the room exists
-        try:
-            room = await Room.objects.aget(room_code=self.room_code)
-        except Room.DoesNotExist:
-            await self.close(code=4004, reason="Room not found")
-            return
+        room = await self.get_room()
 
         # Check if the user is authenticated
         if self.scope['user'].id is None:
@@ -58,12 +69,7 @@ class RoomConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
 
-        # Check if the room exists
-        try:
-            room = await Room.objects.aget(room_code=self.room_code)
-        except Room.DoesNotExist:
-            await self.close(code=4004, reason="Room not found")
-            return
+        room = await self.get_room()
 
         # Check if chat is started
         if room.isChatStarted:
@@ -71,10 +77,19 @@ class RoomConsumer(AsyncWebsocketConsumer):
             if message_type == 'new_message':
                 message = text_data_json['message']
                 if message:
+                    # Save the message to the database
+                    message_object = await Message.objects.acreate(
+                        room=room,
+                        sender=self.scope['user'],
+                        text=message
+                    )
+
+                    # Send the message to the room group
                     await self.channel_layer.group_send(
                         self.room_group_name,
                         {
                             'type': 'new_message',
+                            'id': message_object.id,
                             'username': self.scope['user'].username,
                             'message': message
                         }
@@ -88,9 +103,11 @@ class RoomConsumer(AsyncWebsocketConsumer):
 
         username = event['username']
         message = event['message']
+        id = event['id']
         await self.send(text_data=json.dumps({
             'type': 'new_message',
             'username': username,
+            'id': id,
             'message': message
         }))
 
@@ -140,17 +157,18 @@ class RoomConsumer(AsyncWebsocketConsumer):
         """
         This function is called when the user requests the sync data
         """
-        try:
-            room = await Room.objects.aget(room_code=self.room_code)
-        except Room.DoesNotExist:
-            await self.close(code=4004, reason="Room not found")
-            return
+        room = await self.get_room()
 
         # Send data according to the room state
         if room.isChatStarted:
+            messages = await sync_to_async(lambda : Message.objects.filter(room=room).
+                                           order_by('timestamp').
+                                           values('id', 'sender__username', 'text', 'idea__idea_number', 'idea__votes'))()
+
             room_data = {
                 'type': 'sync_data',
-                'isChatStarted': True
+                'isChatStarted': True,
+                'messages': await sync_to_async(list)(messages)
             }
         else:
             room_data = {

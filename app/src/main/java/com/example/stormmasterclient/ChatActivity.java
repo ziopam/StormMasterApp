@@ -6,7 +6,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,11 +16,13 @@ import android.widget.Toast;
 
 import com.example.stormmasterclient.helpers.API.ApiProblemsHandler;
 import com.example.stormmasterclient.helpers.API.ApiRoomClient;
-import com.example.stormmasterclient.helpers.RecyclerViewAdapters.MessageEntity;
 import com.example.stormmasterclient.helpers.RecyclerViewAdapters.MessagesAdapter;
+import com.example.stormmasterclient.helpers.RoomDatabase.MessageEntity;
+import com.example.stormmasterclient.helpers.RoomDatabase.MessagesRepository;
 import com.example.stormmasterclient.helpers.TextWatchers.MessageTextWatcher;
 import com.example.stormmasterclient.helpers.WebSocket.IWebSocketMessageListener;
 import com.example.stormmasterclient.helpers.WebSocket.WebSocketClient;
+import com.example.stormmasterclient.helpers.WebSocket.WebSocketSyncHandler;
 import com.example.stormmasterclient.helpers.dialogs.DeleteRoomDialog;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -29,6 +30,8 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textview.MaterialTextView;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+
+import java.util.ArrayList;
 
 
 /**
@@ -38,7 +41,9 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
     private String roomCode;
     private String username;
     final private MessagesAdapter messagesAdapter = new MessagesAdapter();
+    private final MessagesRepository messagesRepository = new MessagesRepository(getApplication());
     public static WebSocketClient webSocketClient;
+    private final WebSocketSyncHandler webSocketSyncHandler = new WebSocketSyncHandler();
     private ApiProblemsHandler apiProblemsHandler;
     private ApiRoomClient apiRoomClient;
 
@@ -93,6 +98,9 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
         messagesRecyclerView.setAdapter(messagesAdapter);
         messagesRecyclerView.setLayoutManager(new GridLayoutManager(this, 1));
 
+        // Connect database and RecyclerView adapter to see actual messages
+        messagesRepository.getAllMessages().observe(this, messagesAdapter::submitList);
+
         // Show room code in the header
         MaterialTextView appName = findViewById(R.id.appNameTextView);
         String header = appName.getText().toString() + " · " + roomCode;
@@ -139,13 +147,17 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
 
         if(messageData.get("type") != null){
             String type = messageData.get("type").getAsString();
+            SharedPreferences sharedPreferences = getSharedPreferences("USER_DATA", MODE_PRIVATE);
+            username = sharedPreferences.getString("username", "");
 
             switch (type) {
                 case "error": handleErrors(messageData); break;
                 case "new_message": handleNewMessage(messageData); break;
+                case "sync_data": webSocketSyncHandler.handleMessages(messageData, username, messagesRepository); break;
             }
         }
     }
+
 
     /**
      * Handles the errors received from the WebSocket.
@@ -190,12 +202,21 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
     private void handleNewMessage(JsonObject messageData){
         String message = messageData.get("message").getAsString();
         String username = messageData.get("username").getAsString();
+        int id = messageData.get("id").getAsInt();
+        SharedPreferences sharedPreferences = getSharedPreferences("USER_DATA", MODE_PRIVATE);
+        this.username = sharedPreferences.getString("username", "");
+        Log.d("NEW_MESSAGE", "handleNewMessage: " + this.username + " " + username);
         boolean isThisUser = username.equals(this.username);
+        Log.d("NEW_MESSAGE", "handleNewMessage: " + "Is this username?? " + isThisUser);
 
-        // Add the message to the RecyclerView
+        // Add the message to the RecyclerView by adding it to the database
         runOnUiThread(() -> {
-            messagesAdapter.messagesList.add(new MessageEntity(message, username, isThisUser, false));
-            messagesAdapter.notifyItemInserted(messagesAdapter.messagesList.size() - 1);
+            MessageEntity messageEntity = new MessageEntity();
+            messageEntity.setMessage(message);
+            messageEntity.setId(id);
+            messageEntity.setUsername(username);
+            messageEntity.setIsThisUser(isThisUser);
+            messagesRepository.insert(messageEntity);
         });
     }
 

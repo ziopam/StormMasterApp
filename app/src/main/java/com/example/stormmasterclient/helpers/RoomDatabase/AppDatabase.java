@@ -15,9 +15,10 @@ import java.util.concurrent.Executors;
  * @see BrainstormDao
  * @see RoomDatabase
  */
-@Database(entities = {BrainstormEntity.class}, version = 1, exportSchema = false)
+@Database(entities = {BrainstormEntity.class, MessageEntity.class}, version = 3, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract BrainstormDao brainstormDao();
+    public abstract MessagesDao messagesDao();
     private static volatile AppDatabase instance;
     public static final ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(4);
 

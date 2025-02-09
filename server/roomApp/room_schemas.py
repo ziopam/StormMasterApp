@@ -117,7 +117,8 @@ leave_room_schema = swagger_auto_schema(
         responses={
             200: openapi.Response(description="OK"),
             400: openapi.Response(
-                description="Error in the room_code field", examples={
+                description="- Error in the room_code field\n - User is the creator of room. They can't leave it, only delete it",
+                examples={
                     "application/json": {
                         "detail": "Поле room_code обязательно в запросе"
                     }
