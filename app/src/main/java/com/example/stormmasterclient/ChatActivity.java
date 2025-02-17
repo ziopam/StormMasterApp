@@ -153,6 +153,7 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
             switch (type) {
                 case "error": handleErrors(messageData); break;
                 case "new_message": handleNewMessage(messageData); break;
+                case "set_idea": handleSettingIdea(messageData); break;
                 case "sync_data": webSocketSyncHandler.handleMessages(messageData, username, messagesRepository); break;
             }
         }
@@ -205,19 +206,29 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
         int id = messageData.get("id").getAsInt();
         SharedPreferences sharedPreferences = getSharedPreferences("USER_DATA", MODE_PRIVATE);
         this.username = sharedPreferences.getString("username", "");
-        Log.d("NEW_MESSAGE", "handleNewMessage: " + this.username + " " + username);
         boolean isThisUser = username.equals(this.username);
-        Log.d("NEW_MESSAGE", "handleNewMessage: " + "Is this username?? " + isThisUser);
 
         // Add the message to the RecyclerView by adding it to the database
-        runOnUiThread(() -> {
-            MessageEntity messageEntity = new MessageEntity();
-            messageEntity.setMessage(message);
-            messageEntity.setId(id);
-            messageEntity.setUsername(username);
-            messageEntity.setIsThisUser(isThisUser);
-            messagesRepository.insert(messageEntity);
-        });
+        MessageEntity messageEntity = new MessageEntity();
+        messageEntity.setMessage(message);
+        messageEntity.setId(id);
+        messageEntity.setUsername(username);
+        messageEntity.setIsThisUser(isThisUser);
+        messagesRepository.insert(messageEntity);
+        ;
+    }
+
+    /**
+     * Handles the setting idea received from the WebSocket.
+     *
+     * @param messageData The data of the message.
+     */
+    private void handleSettingIdea(JsonObject messageData) {
+        int messageId = messageData.get("message_id").getAsInt();
+        int ideaNumber = messageData.get("idea_number").getAsInt();
+        int ideaVotes = messageData.get("idea_votes").getAsInt();
+
+        messagesRepository.updateIdeaFields(messageId, ideaNumber, ideaVotes);
     }
 
     /**
@@ -263,5 +274,10 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
         } else if (item.getItemId() == R.id.deleteRoomMenuItem){
             new DeleteRoomDialog(roomCode, webSocketClient, apiRoomClient, this).show();
         }
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        return messagesAdapter.onContextItemSelected(item,this, webSocketClient);
     }
 }

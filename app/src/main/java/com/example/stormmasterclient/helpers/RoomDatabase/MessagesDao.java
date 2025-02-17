@@ -39,6 +39,16 @@ public interface MessagesDao {
     void insertAll(List<MessageEntity> messages);
 
     /**
+     * Updates the ideaNumber and ideaVotes fields of a message in the database.
+     *
+     * @param id The id of the message to be updated.
+     * @param ideaNumber The new idea number.
+     * @param ideaVotes The new number of votes.
+     */
+    @Query("UPDATE messages_table SET ideaNumber = :ideaNumber, ideaVotes = :ideaVotes WHERE id = :id")
+    void updateIdeaFields(int id, int ideaNumber, int ideaVotes);
+
+    /**
      * Deletes all messages from the database.
      */
     @Query("DELETE FROM messages_table")

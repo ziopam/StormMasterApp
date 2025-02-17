@@ -69,6 +69,7 @@ class Idea(models.Model):
     """
 
     idea_number = models.IntegerField(unique=True)
+    room_code = models.CharField(blank=False, null=False, max_length=6, default="_")
     votes = models.IntegerField(default=0)
     voters = models.ManyToManyField(User, blank=True, related_name='voted_ideas')
 
