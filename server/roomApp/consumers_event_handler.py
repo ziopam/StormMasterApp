@@ -78,3 +78,17 @@ class EventHandlers:
         """
 
         await self.close(code=4004, reason="Room deleted")
+
+    async def update_votes(self, event):
+        """
+        This function is called when the votes are updated
+        :param event: event object
+        """
+
+        idea_number = event['idea_number']
+        idea_votes = event['idea_votes']
+        await self.send(text_data=json.dumps({
+            'type': 'update_votes',
+            'idea_number': idea_number,
+            'idea_votes': idea_votes
+        }))

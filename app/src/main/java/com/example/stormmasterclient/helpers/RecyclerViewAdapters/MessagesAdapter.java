@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -50,7 +51,7 @@ public class MessagesAdapter extends ListAdapter<MessageEntity, MessagesAdapter.
             return oldItem.getId() == newItem.getId() && oldItem.getUsername().equals(newItem.getUsername()) &&
                     oldItem.getMessage().equals(newItem.getMessage()) &&
                     oldItem.getIsThisUser() == newItem.getIsThisUser() &&
-                    oldItem.getIdeaNumber() == newItem.getIdeaNumber();
+                    oldItem.getIdeaNumber() == newItem.getIdeaNumber() && oldItem.getIdeaVotes() == newItem.getIdeaVotes();
         }
     };
 
@@ -69,16 +70,21 @@ public class MessagesAdapter extends ListAdapter<MessageEntity, MessagesAdapter.
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.clone(holder.cardView.getContext(), R.layout.message_layout);
 
+        Context context = holder.cardView.getContext();
+
         // If the message is from the current user, change the layout
         if(message.getIsThisUser()){
             // Hide the nickname
             holder.nicknameTextView.setVisibility(View.GONE);
+
+            holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.user_messages_color));
 
             // Move message to the right side
             constraintSet.clear(holder.cardView.getId(), ConstraintSet.START);
             constraintSet.connect(holder.cardView.getId(), ConstraintSet.END,
                     ConstraintSet.PARENT_ID, ConstraintSet.END, 15);
         } else {
+            holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.white));
             holder.nicknameTextView.setVisibility(View.VISIBLE);
             holder.nicknameTextView.setText(message.getUsername());
 
@@ -95,6 +101,7 @@ public class MessagesAdapter extends ListAdapter<MessageEntity, MessagesAdapter.
             holder.ideaLayout.setVisibility(View.VISIBLE);
             String ideaText = holder.ideaTextView.getContext().getString(R.string.idea_number_text, message.getIdeaNumber());
             holder.ideaTextView.setText(ideaText);
+            holder.votesTextView.setText(String.valueOf(message.getIdeaVotes()));
         } else {
             holder.ideaLayout.setVisibility(View.GONE);
         }
@@ -160,6 +167,12 @@ public class MessagesAdapter extends ListAdapter<MessageEntity, MessagesAdapter.
             return true;
         } else if (item.getItemId() == R.id.remove_idea_action){
             webSocketClient.sendMessage("{\"type\": \"remove_idea\", \"message_id\": " + selectedMessage.getId() + "}");
+            return true;
+        } else if (item.getItemId() == R.id.vote_for_idea_action){
+            webSocketClient.sendMessage("{\"type\": \"vote_for_idea\", \"idea_number\": " + selectedMessage.getIdeaNumber() + "}");
+            return true;
+        } else if (item.getItemId() == R.id.devote_for_idea_action){
+            webSocketClient.sendMessage("{\"type\": \"devote_for_idea\", \"idea_number\": " + selectedMessage.getIdeaNumber() + "}");
             return true;
         }
         return false;

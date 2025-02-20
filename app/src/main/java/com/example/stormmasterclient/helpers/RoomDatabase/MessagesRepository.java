@@ -61,6 +61,18 @@ public class MessagesRepository {
     }
 
     /**
+     * Updates the ideaVotes field of all messages with this idea in the database.
+     *
+     * @param ideaNumber The idea number be updated.
+     * @param ideaVotes  The new number of votes.
+     */
+    public void updateIdeaVotes(int ideaNumber, int ideaVotes) {
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            messagesDao.updateIdeaVotes(ideaNumber, ideaVotes);
+        });
+    }
+
+    /**
      * Deletes all messages from the database.
      */
     public void deleteAll() {

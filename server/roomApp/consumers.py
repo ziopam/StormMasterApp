@@ -42,6 +42,9 @@ class RoomConsumer(AsyncWebsocketConsumer, EventHandlers):
 
         room = await self.get_room()
 
+        if room is None:
+            return
+
         # Check if the user is authenticated
         if self.scope['user'].id is None:
             await self.close(code=4001, reason="Unauthorized")
@@ -78,6 +81,9 @@ class RoomConsumer(AsyncWebsocketConsumer, EventHandlers):
 
         room = await self.get_room()
 
+        if room is None:
+            return
+
         # Check if chat is started
         if room.isChatStarted:
             message_type = text_data_json['type']
@@ -87,6 +93,10 @@ class RoomConsumer(AsyncWebsocketConsumer, EventHandlers):
                 await self.set_idea_received(text_data_json)
             elif message_type == 'remove_idea':
                 await self.remove_idea_received(text_data_json)
+            elif message_type == 'vote_for_idea':
+                await self.vote_for_idea_received(text_data_json)
+            elif message_type == "devote_for_idea":
+                await self.devote_for_idea_received(text_data_json)
 
     async def new_message_received(self, room, text_data_json):
         """
@@ -171,11 +181,76 @@ class RoomConsumer(AsyncWebsocketConsumer, EventHandlers):
             }
         )
 
+    async def vote_for_idea_received(self, text_data_json):
+        """
+        This function is called when the user votes for an idea
+        :param text_data_json: the idea data
+        :return:
+        """
+
+        idea_number = text_data_json['idea_number']
+        try:
+            idea = await sync_to_async(Idea.objects.get)(room_code=self.room_code, idea_number=idea_number)
+        except Idea.DoesNotExist:
+            return
+        user = self.scope['user']
+
+        # Check if the user has already voted for this idea
+        if await idea.voters.acontains(user):
+            return
+
+        await sync_to_async(idea.voters.add)(user)
+        await idea.asave()
+        await sync_to_async(idea.update_votes)()
+
+        # Send the message to the room group
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'update_votes',
+                'idea_number': idea_number,
+                'idea_votes': idea.votes
+            })
+
+    async def devote_for_idea_received(self, text_data_json):
+        """
+        This function is called when the user devotes for an idea
+        :param text_data_json: the idea data
+        :return:
+        """
+
+        idea_number = text_data_json['idea_number']
+        try:
+            idea = await sync_to_async(Idea.objects.get)(room_code=self.room_code, idea_number=idea_number)
+        except Idea.DoesNotExist:
+            return
+        user = self.scope['user']
+
+        # Check if the user did not vote for this idea
+        if not await idea.voters.acontains(user):
+            return
+
+        await sync_to_async(idea.voters.remove)(user)
+        await idea.asave()
+        await sync_to_async(idea.update_votes)()
+
+        # Send the message to the room group
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'update_votes',
+                'idea_number': idea_number,
+                'idea_votes': idea.votes
+            })
+
     async def send_sync_data(self):
         """
         This function is called when the user requests the sync data
         """
         room = await self.get_room()
+
+        if room is None:
+            return
 
         # Send data according to the room state
         if room.isChatStarted:

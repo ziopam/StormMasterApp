@@ -155,6 +155,7 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
                 case "error": webSocketClient.handleErrors(messageData, this, apiProblemsHandler); break;
                 case "new_message": handleNewMessage(messageData); break;
                 case "set_idea": handleSettingIdea(messageData); break;
+                case "update_votes": handleUpdateVotes(messageData); break;
                 case "sync_data": webSocketSyncHandler.handleMessages(messageData, username, messagesRepository); break;
             }
         }
@@ -193,6 +194,20 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
         int ideaVotes = messageData.get("idea_votes").getAsInt();
 
         messagesRepository.updateIdeaFields(messageId, ideaNumber, ideaVotes);
+    }
+
+    /**
+     * Handles the update votes received from the WebSocket.
+     *
+     * @param messageData The data of the message.
+     */
+    private void handleUpdateVotes(JsonObject messageData) {
+        int ideaNumber = messageData.get("idea_number").getAsInt();
+        int ideaVotes = messageData.get("idea_votes").getAsInt();
+
+        Log.d("UPDATE_VOTES", "Idea number: " + ideaNumber + " Idea votes: " + ideaVotes);
+
+        messagesRepository.updateIdeaVotes(ideaNumber, ideaVotes);
     }
 
     /**
