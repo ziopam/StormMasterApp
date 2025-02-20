@@ -1,9 +1,13 @@
 package com.example.stormmasterclient.helpers.WebSocket;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.widget.Toast;
 
 import com.example.stormmasterclient.helpers.API.APIConfig;
+import com.example.stormmasterclient.helpers.API.ApiProblemsHandler;
+import com.google.gson.JsonObject;
 
 import java.io.Serializable;
 
@@ -118,6 +122,11 @@ public class WebSocketClient {
         }
     }
 
+    /**
+     * Sends a message to the WebSocket.
+     *
+     * @param message The message to send.
+     */
     public void sendMessage(String message) {
         if (webSocket != null) {
             webSocket.send(message);
@@ -133,6 +142,42 @@ public class WebSocketClient {
             handler.removeCallbacks(reconnectRunnable);
 
             webSocket.close(1000, "Client closing connection");
+        }
+    }
+
+    /**
+     * Handles the errors received from the WebSocket.
+     *
+     * @param messageData The data of the message.
+     */
+    public void handleErrors(JsonObject messageData, Context context, ApiProblemsHandler apiProblemsHandler){
+        int errorCode = messageData.get("error_code").getAsInt();
+        Handler toastLooper = new Handler(Looper.getMainLooper());
+
+        switch (errorCode){
+            case 1000: break; // Client closed the connection, so do nothing
+            case 1006:
+            case 4000:
+                toastLooper.post(() -> Toast.makeText(context, "Проверьте подключение к интернету",
+                        Toast.LENGTH_SHORT).show());
+                break;
+            case 4001:
+                apiProblemsHandler.processUserUnauthorized();
+                this.closeWebSocket();
+                break;
+            case 4003:
+                toastLooper.post(() -> Toast.makeText(context, "Вы больше не являетесь участником " +
+                        "этого мозгового штурма", Toast.LENGTH_SHORT).show());
+                this.closeWebSocket();
+                apiProblemsHandler.returnToMain();
+                break;
+            case 4004:
+                toastLooper.post(() -> Toast.makeText(context, "Этой комнаты больше не существует",
+                        Toast.LENGTH_SHORT).show());
+                this.closeWebSocket();
+                apiProblemsHandler.returnToMain();
+                break;
+            default: this.reconnect();
         }
     }
 }

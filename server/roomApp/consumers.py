@@ -4,10 +4,11 @@ import json
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
+from .consumers_event_handler import EventHandlers
 from .models import Room, Message, Idea
 
 
-class RoomConsumer(AsyncWebsocketConsumer):
+class RoomConsumer(AsyncWebsocketConsumer, EventHandlers):
     """
     This consumer is used to handle WebSocket connections to the room
     """
@@ -68,6 +69,11 @@ class RoomConsumer(AsyncWebsocketConsumer):
         )
 
     async def receive(self, text_data):
+        """
+        This function is called when a message is received from the WebSocket
+        :param text_data: message data
+        """
+
         text_data_json = json.loads(text_data)
 
         room = await self.get_room()
@@ -76,126 +82,94 @@ class RoomConsumer(AsyncWebsocketConsumer):
         if room.isChatStarted:
             message_type = text_data_json['type']
             if message_type == 'new_message':
-                message = text_data_json['message']
-                if message:
-                    # Save the message to the database
-                    message_object = await Message.objects.acreate(
-                        room=room,
-                        sender=self.scope['user'],
-                        text=message
-                    )
-
-                    # Send the message to the room group
-                    await self.channel_layer.group_send(
-                        self.room_group_name,
-                        {
-                            'type': 'new_message',
-                            'id': message_object.id,
-                            'username': self.scope['user'].username,
-                            'message': message
-                        }
-                    )
+                await self.new_message_received(room, text_data_json)
             elif message_type == 'set_idea':
-                message_id = text_data_json['message_id']
-                idea_number = text_data_json['idea_number']
-
-                # Check if idea_number is an integer
-                if not isinstance(idea_number, int) or not message_id:
-                    return
-
-                if 1 <= idea_number <= 1000:
-                    message = await sync_to_async(Message.objects.get)(id=message_id)
-                    idea, _ = await sync_to_async(Idea.objects.get_or_create)(room_code=self.room_code, idea_number=idea_number)
-                    message.idea = idea
-                    await message.asave()
-                    await sync_to_async(idea.update_votes)()
-                    idea_votes = idea.votes
-
-                    # Send the message to the room group
-                    await self.channel_layer.group_send(
-                        self.room_group_name,
-                        {
-                            'type': 'set_idea',
-                            'message_id': message.id,
-                            'idea_number': idea_number,
-                            'idea_votes': idea_votes
-                        }
-                    )
+                await self.set_idea_received(text_data_json)
             elif message_type == 'remove_idea':
-                message_id = text_data_json['message_id']
-                message = await sync_to_async(Message.objects.get)(id=message_id)
-                message.idea = None
-                await message.asave()
+                await self.remove_idea_received(text_data_json)
 
-
-                # Send the message to the room group
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        'type': 'set_idea',
-                        'message_id': message.id,
-                        'idea_number': -1,
-                        'idea_votes': 0
-                    }
-                )
-
-    async def new_message(self, event):
+    async def new_message_received(self, room, text_data_json):
         """
         This function is called when a new message is received
-        :param event: event object
+        :param room: room in which the message is sent
+        :param text_data_json: the message data
+        :return:
         """
 
-        username = event['username']
-        message = event['message']
-        id = event['id']
-        await self.send(text_data=json.dumps({
-            'type': 'new_message',
-            'username': username,
-            'id': id,
-            'message': message
-        }))
+        message = text_data_json['message']
+        if message:
+            # Save the message to the database
+            message_object = await Message.objects.acreate(
+                room=room,
+                sender=self.scope['user'],
+                text=message
+            )
 
-    async def user_joined(self, event):
-        """
-        This function is called when a user joins the room
-        :param event: event object
-        """
+            # Send the message to the room group
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'new_message',
+                    'id': message_object.id,
+                    'username': self.scope['user'].username,
+                    'message': message
+                }
+            )
 
-        username = event['username']
-        await self.send(text_data=json.dumps({
-            'type': 'user_joined',
-            'username': username
-        }))
-
-    async def user_left(self, event):
+    async def set_idea_received(self, text_data_json):
         """
-        This function is called when a user leaves the room
-        :param event: event object
-        """
-
-        username = event['username']
-        await self.send(text_data=json.dumps({
-            'type': 'user_left',
-            'username': username
-        }))
-
-    async def chat_started(self, event):
-        """
-        This function is called when the chat is started
-        :param event: event object (not used)
+        This function is called when a new idea is set
+        :param text_data_json: the message and its idea data
+        :return:
         """
 
-        await self.send(text_data=json.dumps({
-            'type': 'chat_started'
-        }))
+        message_id = text_data_json['message_id']
+        idea_number = text_data_json['idea_number']
 
-    async def room_deleted(self, event):
+        # Check if idea_number is an integer
+        if not isinstance(idea_number, int) or not message_id:
+            return
+
+        if 1 <= idea_number <= 1000:
+            message = await sync_to_async(Message.objects.get)(id=message_id)
+            idea, _ = await sync_to_async(Idea.objects.get_or_create)(room_code=self.room_code, idea_number=idea_number)
+            message.idea = idea
+            await message.asave()
+            await sync_to_async(idea.update_votes)()
+            idea_votes = idea.votes
+
+            # Send the message to the room group
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'set_idea',
+                    'message_id': message.id,
+                    'idea_number': idea_number,
+                    'idea_votes': idea_votes
+                }
+            )
+
+    async def remove_idea_received(self, text_data_json):
         """
-        This function is called when the room is deleted
-        :param event: event object (not used)
+        This function is called when the idea is removed
+        :param text_data_json: the message data with the idea to remove
+        :return:
         """
 
-        await self.close(code=4004, reason="Room deleted")
+        message_id = text_data_json['message_id']
+        message = await sync_to_async(Message.objects.get)(id=message_id)
+        message.idea = None
+        await message.asave()
+        # Send the message to the room group
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'set_idea',
+                'message_id': message.id,
+                'idea_number': -1,
+                'idea_votes': 0
+            }
+        )
 
     async def send_sync_data(self):
         """
@@ -223,19 +197,3 @@ class RoomConsumer(AsyncWebsocketConsumer):
             }
 
         await self.send(text_data=json.dumps(room_data))
-
-    async def set_idea(self, event):
-        """
-        This function is called when a new idea is set
-        :param event: event object
-        """
-
-        message_id = event['message_id']
-        idea_number = event['idea_number']
-        idea_votes = event['idea_votes']
-        await self.send(text_data=json.dumps({
-            'type': 'set_idea',
-            'message_id': message_id,
-            'idea_number': idea_number,
-            'idea_votes': idea_votes
-        }))

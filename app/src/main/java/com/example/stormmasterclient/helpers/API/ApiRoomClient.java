@@ -227,12 +227,12 @@ public class ApiRoomClient {
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                webSocketClient.closeWebSocket();
                 if (response.isSuccessful() & response.body() != null){
-                    processSuccessfulLeavingRoom(response);
-                } else {
+                    processSuccessfulLeavingRoom();
+                } else{
                     processLeavingRoomFailure(response);
                 }
-                webSocketClient.closeWebSocket();
             }
 
             @Override
@@ -246,9 +246,8 @@ public class ApiRoomClient {
 
     /**
      * Processes a successful leaving room request.
-     * @param response response of the successful request.
      */
-    private void processSuccessfulLeavingRoom(Response<JsonObject> response) {
+    private void processSuccessfulLeavingRoom() {
         Toast.makeText(context, "Вы успешно покинули комнату", Toast.LENGTH_SHORT).show();
         problemsHandler.returnToMain();
     }

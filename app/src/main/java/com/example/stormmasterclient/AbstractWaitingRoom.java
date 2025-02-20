@@ -67,7 +67,7 @@ public abstract class AbstractWaitingRoom extends AppCompatActivity implements I
 
                 switch (type) {
                     case "sync_data": syncData(messageData); break;
-                    case "error": handleErrors(messageData); break;
+                    case "error": webSocketClient.handleErrors(messageData, this, apiProblemsHandler); break;
                     case "user_joined": addParticipant(messageData.get("username").getAsString()); break;
                     case "user_left": removeParticipant(messageData.get("username").getAsString()); break;
                     case "chat_started": startChatActivity(this, roomCode, isCreator, webSocketClient); break;
@@ -109,39 +109,6 @@ public abstract class AbstractWaitingRoom extends AppCompatActivity implements I
                 startChatActivity(this, roomCode, isCreator, webSocketClient);
             }
         });
-    }
-
-    /**
-     * Handles the errors received from the WebSocket.
-     *
-     * @param messageData The data of the message.
-     */
-    protected void handleErrors(JsonObject messageData){
-        int errorCode = messageData.get("error_code").getAsInt();
-        switch (errorCode){
-            case 1006:
-            case 4000:
-                Toast.makeText(this, "Проверьте подключение к интернету",
-                        Toast.LENGTH_SHORT).show();
-                break;
-            case 4001:
-                apiProblemsHandler.processUserUnauthorized();
-                webSocketClient.closeWebSocket();
-                break;
-            case 4003:
-                Toast.makeText(this, "Вы больше не являетесь участником этого мозгового штурма",
-                        Toast.LENGTH_SHORT).show();
-                webSocketClient.closeWebSocket();
-                apiProblemsHandler.returnToMain();
-                break;
-            case 4004:
-                Toast.makeText(this, "Этой комнаты больше не существует",
-                        Toast.LENGTH_SHORT).show();
-                webSocketClient.closeWebSocket();
-                apiProblemsHandler.returnToMain();
-                break;
-            default: webSocketClient.reconnect();
-        }
     }
 
 

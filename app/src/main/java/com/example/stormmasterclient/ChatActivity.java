@@ -6,6 +6,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -151,48 +152,12 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
             username = sharedPreferences.getString("username", "");
 
             switch (type) {
-                case "error": handleErrors(messageData); break;
+                case "error": webSocketClient.handleErrors(messageData, this, apiProblemsHandler); break;
                 case "new_message": handleNewMessage(messageData); break;
                 case "set_idea": handleSettingIdea(messageData); break;
                 case "sync_data": webSocketSyncHandler.handleMessages(messageData, username, messagesRepository); break;
             }
         }
-    }
-
-
-    /**
-     * Handles the errors received from the WebSocket.
-     *
-     * @param messageData The data of the message.
-     */
-    protected void handleErrors(JsonObject messageData){
-        int errorCode = messageData.get("error_code").getAsInt();
-        runOnUiThread( () -> {
-            switch (errorCode){
-                case 1006:
-                case 4000:
-                    Toast.makeText(this, "Проверьте подключение к интернету",
-                            Toast.LENGTH_SHORT).show();
-                    break;
-                case 4001:
-                    apiProblemsHandler.processUserUnauthorized();
-                    webSocketClient.closeWebSocket();
-                    break;
-                case 4003:
-                    Toast.makeText(this, "Вы больше не являетесь участником этого мозгового штурма",
-                            Toast.LENGTH_SHORT).show();
-                    webSocketClient.closeWebSocket();
-                    apiProblemsHandler.returnToMain();
-                    break;
-                case 4004:
-                    Toast.makeText(this, "Этой комнаты больше не существует",
-                            Toast.LENGTH_SHORT).show();
-                    webSocketClient.closeWebSocket();
-                    apiProblemsHandler.returnToMain();
-                    break;
-                default: webSocketClient.reconnect();
-            }
-        });
     }
 
     /**
@@ -215,7 +180,6 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
         messageEntity.setUsername(username);
         messageEntity.setIsThisUser(isThisUser);
         messagesRepository.insert(messageEntity);
-        ;
     }
 
     /**
@@ -276,6 +240,13 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
         }
     }
 
+    /**
+     * Called when a context menu item is selected. Uses MessagesAdapter to handle the selection.
+     *
+     * @param item The selected menu item.
+     * @return true if the item is selected successfully.
+     * @see MessagesAdapter#onContextItemSelected(MenuItem, Context, WebSocketClient)
+     */
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         return messagesAdapter.onContextItemSelected(item,this, webSocketClient);

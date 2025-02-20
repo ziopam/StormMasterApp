@@ -68,7 +68,7 @@ class Idea(models.Model):
     This class is used to define the Idea model
     """
 
-    idea_number = models.IntegerField(unique=True)
+    idea_number = models.IntegerField()
     room_code = models.CharField(blank=False, null=False, max_length=6, default="_")
     votes = models.IntegerField(default=0)
     voters = models.ManyToManyField(User, blank=True, related_name='voted_ideas')
