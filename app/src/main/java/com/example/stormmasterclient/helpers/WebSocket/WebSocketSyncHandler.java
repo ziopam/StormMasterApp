@@ -19,8 +19,9 @@ public class WebSocketSyncHandler {
      * @param syncData The sync data received from the server.
      * @param username The username of the user.
      * @param messagesRepository The repository for the messages database.
+     * @return The details of the room that the user has joined (its theme).
      */
-    public void handleMessages(JsonObject syncData, String username, MessagesRepository messagesRepository){
+    public String handleMessages(JsonObject syncData, String username, MessagesRepository messagesRepository){
         ArrayList<MessageEntity> messages = new ArrayList<>();
         syncData.get("messages").getAsJsonArray().forEach(message -> {
             JsonObject json = message.getAsJsonObject();
@@ -40,5 +41,7 @@ public class WebSocketSyncHandler {
 
         // Add the messages to the RecyclerView by adding them to the database
         messagesRepository.insertAll(messages);
+
+        return syncData.get("details").getAsString();
     }
 }

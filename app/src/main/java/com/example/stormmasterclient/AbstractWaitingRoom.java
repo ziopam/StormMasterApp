@@ -3,6 +3,7 @@ package com.example.stormmasterclient;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -70,7 +71,7 @@ public abstract class AbstractWaitingRoom extends AppCompatActivity implements I
                     case "error": webSocketClient.handleErrors(messageData, this, apiProblemsHandler); break;
                     case "user_joined": addParticipant(messageData.get("username").getAsString()); break;
                     case "user_left": removeParticipant(messageData.get("username").getAsString()); break;
-                    case "chat_started": startChatActivity(this, roomCode, isCreator, webSocketClient); break;
+                    case "chat_started": startChatActivity(this, roomCode, isCreator, "", webSocketClient); break;
                 }
             }
         });
@@ -78,11 +79,18 @@ public abstract class AbstractWaitingRoom extends AppCompatActivity implements I
 
     /**
      * Starts the chat activity.
+     *
+     * @param context The context from which the chat activity is started.
+     * @param roomCode The code of the room.
+     * @param isCreator Whether the user is the creator of the room.
+     * @param details The details of the room.
+     * @param webSocketClient The WebSocket client.
      */
-    public static void startChatActivity(Context context, String roomCode, boolean isCreator, WebSocketClient webSocketClient) {
+    public static void startChatActivity(Context context, String roomCode, boolean isCreator, String details, WebSocketClient webSocketClient) {
         Intent intent = new Intent(context, ChatActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.putExtra("roomCode", roomCode);
+        intent.putExtra("roomDetails", details);
         intent.putExtra("isCreator", isCreator);
         ChatActivity.webSocketClient = webSocketClient;
         context.startActivity(intent);
@@ -105,8 +113,9 @@ public abstract class AbstractWaitingRoom extends AppCompatActivity implements I
                     webSocketClient.closeWebSocket();
                 }
 
-                new WebSocketSyncHandler().handleMessages(data, username, new MessagesRepository(getApplication()));
-                startChatActivity(this, roomCode, isCreator, webSocketClient);
+                String details = new WebSocketSyncHandler().handleMessages(data, username,
+                        new MessagesRepository(getApplication()));
+                startChatActivity(this, roomCode, isCreator, details, webSocketClient);
             }
         });
     }

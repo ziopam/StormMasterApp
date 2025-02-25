@@ -174,7 +174,7 @@ class StartBrainstormView(APIView):
             # Set room details
             details = request.data.get('details')
             if details and len(details) > 0 and not details.isspace():
-                room.details = "<h1>Тема мозгового штурма</h1>\n" + details
+                room.details = details
 
             # Start the brainstorm
             room.isChatStarted = True

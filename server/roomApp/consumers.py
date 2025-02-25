@@ -261,6 +261,7 @@ class RoomConsumer(AsyncWebsocketConsumer, EventHandlers):
             room_data = {
                 'type': 'sync_data',
                 'isChatStarted': True,
+                'details': room.details,
                 'messages': await sync_to_async(list)(messages)
             }
         else:

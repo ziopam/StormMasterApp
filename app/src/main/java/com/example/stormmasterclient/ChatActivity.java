@@ -25,6 +25,7 @@ import com.example.stormmasterclient.helpers.WebSocket.IWebSocketMessageListener
 import com.example.stormmasterclient.helpers.WebSocket.WebSocketClient;
 import com.example.stormmasterclient.helpers.WebSocket.WebSocketSyncHandler;
 import com.example.stormmasterclient.helpers.dialogs.DeleteRoomDialog;
+import com.example.stormmasterclient.helpers.dialogs.ShowIdeasAndThemeDialog;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -41,6 +42,7 @@ import java.util.ArrayList;
 public class ChatActivity extends AppCompatActivity implements IWebSocketMessageListener {
     private String roomCode;
     private String username;
+    private String roomDetails;
     final private MessagesAdapter messagesAdapter = new MessagesAdapter();
     private final MessagesRepository messagesRepository = new MessagesRepository(getApplication());
     public static WebSocketClient webSocketClient;
@@ -62,6 +64,9 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
         setContentView(R.layout.activity_chat);
 
         roomCode = getIntent().getStringExtra("roomCode");
+        roomDetails = getIntent().getStringExtra("roomDetails");
+        Log.d("ROOM_DETAILS_FROM_INTENT", roomDetails);
+
 
         // Set up menu, so it will lock different on different screens
         NavigationView navigationView = findViewById(R.id.navigationView);
@@ -156,7 +161,8 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
                 case "new_message": handleNewMessage(messageData); break;
                 case "set_idea": handleSettingIdea(messageData); break;
                 case "update_votes": handleUpdateVotes(messageData); break;
-                case "sync_data": webSocketSyncHandler.handleMessages(messageData, username, messagesRepository); break;
+                case "sync_data": roomDetails =
+                        webSocketSyncHandler.handleMessages(messageData, username, messagesRepository); break;
             }
         }
     }
@@ -247,7 +253,9 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
      * @param item The selected menu item.
      */
     private void handleMenu(MenuItem item){
-        if(item.getItemId() == R.id.leaveMenuItem){
+        if(item.getItemId() == R.id.showIdeasMenuItem){
+            new ShowIdeasAndThemeDialog(this, roomDetails, messagesRepository).show();
+        } else if(item.getItemId() == R.id.leaveMenuItem){
             apiRoomClient.leaveRoom(roomCode, webSocketClient);
             webSocketClient.closeWebSocket();
         } else if (item.getItemId() == R.id.deleteRoomMenuItem){

@@ -4,7 +4,13 @@ import android.app.Application;
 
 import androidx.lifecycle.LiveData;
 
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class MessagesRepository {
     private MessagesDao messagesDao;
@@ -70,6 +76,49 @@ public class MessagesRepository {
         AppDatabase.databaseWriteExecutor.execute(() -> {
             messagesDao.updateIdeaVotes(ideaNumber, ideaVotes);
         });
+    }
+
+    /**
+     * Get all idea numbers from the database (where ideaNumber is not -1).
+     */
+    public List<Integer> getIdeaNumbers() {
+        Future<List<Integer>> future = AppDatabase.databaseWriteExecutor.submit(new Callable<List<Integer>>() {
+            @Override
+            public List<Integer> call() {
+                return messagesDao.getIdeaNumbers();
+            }
+        });
+
+        try {
+            // Wait for the result
+            return future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * Get all text messages with a specific idea number.
+     *
+     * @param ideaNumber The idea number to search for.
+     * @return A list of texts of messages with the specified idea number.
+     */
+    public List<String> getTextMessagesByIdeaNumber(int ideaNumber) {
+        Future<List<String>> future = AppDatabase.databaseWriteExecutor.submit(new Callable<List<String>>() {
+            @Override
+            public List<String> call() {
+                return messagesDao.getTextMessagesByIdeaNumber(ideaNumber);
+            }
+        });
+
+        try {
+            // Wait for the result
+            return future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
     }
 
     /**

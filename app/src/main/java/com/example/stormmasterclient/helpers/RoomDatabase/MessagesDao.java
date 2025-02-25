@@ -6,6 +6,7 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -56,6 +57,21 @@ public interface MessagesDao {
      */
     @Query("UPDATE messages_table SET ideaVotes = :ideaVotes WHERE ideaNumber = :ideaNumber")
     void updateIdeaVotes(int ideaNumber, int ideaVotes);
+
+    /**
+     * Get all idea numbers from the database (where ideaNumber is not -1).
+     */
+    @Query("SELECT DISTINCT ideaNumber FROM messages_table WHERE ideaNumber != -1 ORDER BY ideaNumber ASC")
+    List<Integer> getIdeaNumbers();
+
+    /**
+     * Get all text messages with a specific idea number.
+     *
+     * @param ideaNumber The idea number to search for.
+     * @return A list of texts of messages with the specified idea number.
+     */
+    @Query("SELECT message FROM messages_table WHERE ideaNumber = :ideaNumber")
+    List<String> getTextMessagesByIdeaNumber(int ideaNumber);
 
     /**
      * Deletes all messages from the database.
