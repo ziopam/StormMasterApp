@@ -69,7 +69,7 @@ class Idea(models.Model):
     """
 
     idea_number = models.IntegerField()
-    room_code = models.CharField(blank=False, null=False, max_length=6, default="_")
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name="ideas")
     votes = models.IntegerField(default=0)
     voters = models.ManyToManyField(User, blank=True, related_name='voted_ideas')
 
@@ -101,6 +101,7 @@ class Message(models.Model):
     idea = models.ForeignKey(
         Idea,
         on_delete=models.CASCADE,
+        related_name="messages",
         null=True,
         blank=True
     )

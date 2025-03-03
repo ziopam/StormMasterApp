@@ -5,6 +5,11 @@ from channels.middleware import BaseMiddleware
 
 @database_sync_to_async
 def get_user(token_key):
+    """
+    This function is used to get the user from the token key
+    :param token_key: The token key
+    :return: The user object that is associated with the token key
+    """
     try:
         token = Token.objects.get(key=token_key)
         return token.user
@@ -12,6 +17,10 @@ def get_user(token_key):
         return AnonymousUser()
 
 class TokenAuthMiddleware(BaseMiddleware):
+    """
+    This middleware is used to authenticate the user using the token key
+    """
+
     def __init__(self, inner):
         super().__init__(inner)
 

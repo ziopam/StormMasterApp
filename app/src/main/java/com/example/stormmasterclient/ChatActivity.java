@@ -25,6 +25,7 @@ import com.example.stormmasterclient.helpers.WebSocket.IWebSocketMessageListener
 import com.example.stormmasterclient.helpers.WebSocket.WebSocketClient;
 import com.example.stormmasterclient.helpers.WebSocket.WebSocketSyncHandler;
 import com.example.stormmasterclient.helpers.dialogs.DeleteRoomDialog;
+import com.example.stormmasterclient.helpers.dialogs.FinishBrainstormDialog;
 import com.example.stormmasterclient.helpers.dialogs.ShowIdeasAndThemeDialog;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -260,6 +261,8 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
             webSocketClient.closeWebSocket();
         } else if (item.getItemId() == R.id.deleteRoomMenuItem){
             new DeleteRoomDialog(roomCode, webSocketClient, apiRoomClient, this).show();
+        } else if (item.getItemId() == R.id.finishBrainstormMenuItem){
+            new FinishBrainstormDialog(roomCode, webSocketClient, apiRoomClient, this).show();
         }
     }
 

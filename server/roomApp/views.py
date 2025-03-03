@@ -5,10 +5,11 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
+from brainstormsApp.models import Brainstorm
 from roomApp.room_schemas import delete_room_schema, leave_room_schema, join_room_schema, \
-    create_room_schema, start_brainstorm_schema
+    create_room_schema, start_brainstorm_schema, finish_brainstorm_schema
 from brainstormsApp.permissions import IsOwnerOrAdmin
-from roomApp.models import Room
+from roomApp.models import Room, Idea
 
 
 class CreateRoomView(APIView):
@@ -231,5 +232,70 @@ class DeleteRoom(APIView):
         )
 
         # Delete room if the user has access to it
+        room.delete()
+        return Response({'detail': 'ok'}, status=200)
+
+class FinishBrainstormView(APIView):
+    """
+    This view is used to finish a brainstorm in a room
+    """
+    permission_classes = [IsOwnerOrAdmin]
+
+    @finish_brainstorm_schema
+    def post(self, request):
+        """
+        Finish a brainstorm in a room
+        :param request: the request object
+        :return: the response object
+        """
+
+        # Check if room_code is in the request
+        room_code = request.data.get('room_code')
+        if not room_code:
+            return Response({'detail': 'Поле room_code обязательно в запросе'}, status=400)
+
+        # Check room_code
+        try:
+            room = Room.objects.get(room_code=room_code)
+        except Room.DoesNotExist:
+            return Response({'detail': 'Комната с таким кодом не найдена'}, status=404)
+
+        # Check if user is the creator of the room or admin
+        self.check_object_permissions(request, room)
+
+        # Inform people in the room that the brainstorm has been finished
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'room_{room_code}',
+            {
+                'type': 'finish_brainstorm',
+            }
+        )
+
+        result = ""
+
+        # Check if details are empty. If they are not, set the result
+        if room.details and len(room.details) > 0 and not room.details.isspace():
+            result = "<h1>Тема мозгового штурма:<h1/>\n" + room.details + "\n\n"
+
+        # Collect all messages sorted by votes for the idea and add them to the result
+        ideas = room.ideas.order_by('-votes')
+        if ideas:
+            for idea in ideas:
+                all_idea_messages = idea.messages.all()
+                if all_idea_messages:
+                    result += "<h2>Идея " + str(idea.idea_number) + ":</h2>Голосов:" + str(idea.votes) + "\n\n"
+                    for message in all_idea_messages:
+                        result += message.text + "\n"
+                    result += "\n"
+
+        # Create a new Brainstorm since room is finished
+        new_brainstorm = Brainstorm.objects.create(title=room.title,
+                                  creator=room.creator,
+                                  details=result)
+        new_brainstorm.participants.set(room.participants.all())
+        new_brainstorm.save()
+
+        # Delete the room
         room.delete()
         return Response({'detail': 'ok'}, status=200)

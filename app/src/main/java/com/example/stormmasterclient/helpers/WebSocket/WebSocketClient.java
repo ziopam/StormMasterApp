@@ -164,6 +164,7 @@ public class WebSocketClient {
             case 4001:
                 apiProblemsHandler.processUserUnauthorized();
                 this.closeWebSocket();
+                apiProblemsHandler.returnToMain();
                 break;
             case 4003:
                 toastLooper.post(() -> Toast.makeText(context, "Вы больше не являетесь участником " +
@@ -173,6 +174,12 @@ public class WebSocketClient {
                 break;
             case 4004:
                 toastLooper.post(() -> Toast.makeText(context, "Этой комнаты больше не существует",
+                        Toast.LENGTH_SHORT).show());
+                this.closeWebSocket();
+                apiProblemsHandler.returnToMain();
+                break;
+            case 4100:
+                toastLooper.post(() -> Toast.makeText(context, "Мозговой штурм завершен",
                         Toast.LENGTH_SHORT).show());
                 this.closeWebSocket();
                 apiProblemsHandler.returnToMain();

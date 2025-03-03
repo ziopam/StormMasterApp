@@ -208,3 +208,18 @@ delete_room_schema = swagger_auto_schema(
         ],
         responses=creator_responses
     )
+
+finish_brainstorm_schema = swagger_auto_schema(
+    operation_id="finish_brainstorm",
+    operation_description="Use this endpoint to finish a brainstorm in a room. The request must be authorized. Only the"
+                          " creator of the room and admin can finish a brainstorm.",
+    tags=['rooms'],
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'room_code': openapi.Schema(type=openapi.TYPE_STRING)
+        },
+        required=['room_code']
+    ),
+    responses=creator_responses
+)

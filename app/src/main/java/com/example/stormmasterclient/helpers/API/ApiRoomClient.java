@@ -59,7 +59,7 @@ public class ApiRoomClient {
 
     /**
      * Creates a room with the given title.
-     * @param title
+     * @param title The title of the room to create.
      */
     public void createRoom(String title){
         // Create json object for the request body
@@ -314,6 +314,14 @@ public class ApiRoomClient {
         webSocketClient.closeWebSocket();
     }
 
+    /**
+     * Starts a brainstorm in the room with the given room code.
+     *
+     * @param roomCode The code of the room to start the brainstorm in.
+     * @param details The details of the brainstorm.
+     * @param activity The activity in which the chat activity should be started.
+     * @param webSocketClient The WebSocket client of the room.
+     */
     public void startBrainStorm(String roomCode, String details, Activity activity,
                                 WebSocketClient webSocketClient){
         // Create json object for the request body
@@ -333,6 +341,7 @@ public class ApiRoomClient {
                     AbstractWaitingRoom.startChatActivity(activity, roomCode, true, details, webSocketClient);
                 } else {
                     processStartBrainstormFailure(response);
+                    webSocketClient.closeWebSocket();
                 }
             }
 
@@ -345,6 +354,11 @@ public class ApiRoomClient {
         });
     }
 
+    /**
+     * Processes a failed starting brainstorm request.
+     *
+     * @param response The response of the failed request.
+     */
     private void processStartBrainstormFailure(Response<JsonObject> response) {
         if(response.code() == 401){
             problemsHandler.processUserUnauthorized();
@@ -353,6 +367,58 @@ public class ApiRoomClient {
             Toast.makeText(context, "Данной комнаты не существует", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(context, "Ошибка при попытке начать мозгового штурма", Toast.LENGTH_SHORT).show();
+        }
+        problemsHandler.returnToMain();
+    }
+
+    /**
+     * Finishes a brainstorm in the room with the given room code.
+     *
+     * @param roomCode The code of the room to finish the brainstorm in.
+     * @param activity The activity in which the chat activity should be started.
+     * @param webSocketClient The WebSocket client of the room.
+     */
+    public void finishBrainStorm(String roomCode, Activity activity, WebSocketClient webSocketClient) {
+        // Create json object for the request body
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("room_code", roomCode);
+
+        // Create request body
+        RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"),
+                jsonObject.toString());
+
+        Call<JsonObject> call = apiService.finishBrainstorm("Token " + token, body);
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                if (!response.isSuccessful()) {
+                    processFinishBrainstormFailure(response);
+                    webSocketClient.closeWebSocket();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                problemsHandler.processConnectionFailed();
+                new RepeatActionDialog(() -> finishBrainStorm(roomCode, activity, webSocketClient),
+                        activity, webSocketClient).show();
+            }
+        });
+    }
+
+    /**
+     * Processes a failed finishing brainstorm request.
+     *
+     * @param response The response of the failed request.
+     */
+    private void processFinishBrainstormFailure(Response<JsonObject> response) {
+        if(response.code() == 401){
+            problemsHandler.processUserUnauthorized();
+            return;
+        } else if (response.code() == 404) {
+            Toast.makeText(context, "Данной комнаты не существует", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(context, "Ошибка при попытке завершить мозговой штурм", Toast.LENGTH_SHORT).show();
         }
         problemsHandler.returnToMain();
     }

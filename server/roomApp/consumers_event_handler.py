@@ -92,3 +92,11 @@ class EventHandlers:
             'idea_number': idea_number,
             'idea_votes': idea_votes
         }))
+
+    async def finish_brainstorm(self, event):
+        """
+        This function is called when the brainstorm is finished
+        :param event: event object
+        """
+
+        await self.close(code=4100, reason="Brainstorm finished")

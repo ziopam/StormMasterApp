@@ -7,6 +7,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
 
@@ -53,7 +54,9 @@ public class BrainstormViewActivity extends AppCompatActivity {
         titleTextView.setText(intent.getStringExtra("title"));
         dateTextView.setText(intent.getStringExtra("date"));
         participantsTextView.setText(intent.getStringExtra("participants"));
-        detailsTextView.setText(intent.getStringExtra("details"));
+        String htmlText = intent.getStringExtra("details");
+        htmlText = htmlText.replace("\n", "<br>");
+        detailsTextView.setText(Html.fromHtml(htmlText, Html.FROM_HTML_MODE_COMPACT));
 
         // Set up the delete button
         MaterialButton deleteButton = findViewById(R.id.deleteBrainstormButton);

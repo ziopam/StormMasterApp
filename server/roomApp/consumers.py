@@ -141,8 +141,12 @@ class RoomConsumer(AsyncWebsocketConsumer, EventHandlers):
             return
 
         if 1 <= idea_number <= 1000:
+            room = await self.get_room()
+            if room is None:
+                return
+
             message = await sync_to_async(Message.objects.get)(id=message_id)
-            idea, _ = await sync_to_async(Idea.objects.get_or_create)(room_code=self.room_code, idea_number=idea_number)
+            idea, _ = await sync_to_async(Idea.objects.get_or_create)(room=room, idea_number=idea_number)
             message.idea = idea
             await message.asave()
             await sync_to_async(idea.update_votes)()
@@ -190,7 +194,10 @@ class RoomConsumer(AsyncWebsocketConsumer, EventHandlers):
 
         idea_number = text_data_json['idea_number']
         try:
-            idea = await sync_to_async(Idea.objects.get)(room_code=self.room_code, idea_number=idea_number)
+            room = await self.get_room()
+            if room is None:
+                return
+            idea = await sync_to_async(Idea.objects.get)(room=room, idea_number=idea_number)
         except Idea.DoesNotExist:
             return
         user = self.scope['user']
@@ -221,7 +228,10 @@ class RoomConsumer(AsyncWebsocketConsumer, EventHandlers):
 
         idea_number = text_data_json['idea_number']
         try:
-            idea = await sync_to_async(Idea.objects.get)(room_code=self.room_code, idea_number=idea_number)
+            room = await self.get_room()
+            if room is None:
+                return
+            idea = await sync_to_async(Idea.objects.get)(room=room, idea_number=idea_number)
         except Idea.DoesNotExist:
             return
         user = self.scope['user']
