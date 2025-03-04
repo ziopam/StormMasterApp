@@ -187,6 +187,7 @@ class StartBrainstormView(APIView):
                 f'room_{room_code}',
                 {
                     'type': 'chat_started',
+                    'details': details
                 }
             )
             return Response({'detail': 'ok'}, status=200)
@@ -276,7 +277,7 @@ class FinishBrainstormView(APIView):
 
         # Check if details are empty. If they are not, set the result
         if room.details and len(room.details) > 0 and not room.details.isspace():
-            result = "<h1>Тема мозгового штурма:<h1/>\n" + room.details + "\n\n"
+            result = "<div style='text-align: center;'><h1>Тема мозгового штурма<h1/></div>\n" + room.details + "\n\n"
 
         # Collect all messages sorted by votes for the idea and add them to the result
         ideas = room.ideas.order_by('-votes')
@@ -284,7 +285,8 @@ class FinishBrainstormView(APIView):
             for idea in ideas:
                 all_idea_messages = idea.messages.all()
                 if all_idea_messages:
-                    result += "<h2>Идея " + str(idea.idea_number) + ":</h2>Голосов:" + str(idea.votes) + "\n\n"
+                    result += "<div style='text-align: center;'><h3>Идея " + str(idea.idea_number) + "</h3></div>"
+                    result += "<div style='text-align: center;'>Голосов: " + str(idea.votes) + "</div>\n"
                     for message in all_idea_messages:
                         result += message.text + "\n"
                     result += "\n"

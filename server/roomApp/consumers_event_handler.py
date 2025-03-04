@@ -35,8 +35,10 @@ class EventHandlers:
         :param event: event object (not used)
         """
 
+        details = event['details']
         await self.send(text_data=json.dumps({
-            'type': 'chat_started'
+            'type': 'chat_started',
+            'details': details
         }))
 
     async def new_message(self, event):
