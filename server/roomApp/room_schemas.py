@@ -117,7 +117,8 @@ leave_room_schema = swagger_auto_schema(
         responses={
             200: openapi.Response(description="OK"),
             400: openapi.Response(
-                description="Error in the room_code field", examples={
+                description="- Error in the room_code field\n - User is the creator of room. They can't leave it, only delete it",
+                examples={
                     "application/json": {
                         "detail": "Поле room_code обязательно в запросе"
                     }
@@ -207,3 +208,18 @@ delete_room_schema = swagger_auto_schema(
         ],
         responses=creator_responses
     )
+
+finish_brainstorm_schema = swagger_auto_schema(
+    operation_id="finish_brainstorm",
+    operation_description="Use this endpoint to finish a brainstorm in a room. The request must be authorized. Only the"
+                          " creator of the room and admin can finish a brainstorm.",
+    tags=['rooms'],
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'room_code': openapi.Schema(type=openapi.TYPE_STRING)
+        },
+        required=['room_code']
+    ),
+    responses=creator_responses
+)

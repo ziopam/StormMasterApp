@@ -13,10 +13,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.example.stormmasterclient.helpers.RecyclerViewAdapters.BrainstormAdapter;
 import com.example.stormmasterclient.helpers.RoomDatabase.BrainstormViewModel;
 import com.example.stormmasterclient.helpers.others.LoggerOut;
+import com.google.android.material.textview.MaterialTextView;
 import com.google.android.material.transition.MaterialFade;
 import com.google.android.material.transition.MaterialFadeThrough;
 
@@ -89,9 +91,20 @@ public class HistoryFragment extends Fragment {
         BrainstormViewModel brainstormViewModel = new BrainstormViewModel(requireActivity().getApplication(),
                 token);
 
+        MaterialTextView noBrainstormsTextView = view.findViewById(R.id.noBrainstormsText);
+
         // Observe the brainstorms and submit them to the adapter, so data will always be up-to-date
         brainstormViewModel.getAllBrainstorms().observe(getViewLifecycleOwner(),
-                brainstormAdapter::submitList);
+                (list) ->{
+                    if(!list.isEmpty()){
+                        noBrainstormsTextView.setVisibility(View.GONE);
+                        recyclerView.setVisibility(View.VISIBLE);
+                        brainstormAdapter.submitList(list);
+                    } else {
+                        noBrainstormsTextView.setVisibility(View.VISIBLE);
+                        recyclerView.setVisibility(View.GONE);
+                    }
+                });
 
         // Fetch data from the API
         brainstormViewModel.fetchDataFromApi();

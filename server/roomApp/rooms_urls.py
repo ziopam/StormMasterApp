@@ -1,6 +1,7 @@
 from django.urls import path
 
-from roomApp.views import CreateRoomView, JoinRoomView, LeaveRoomView, DeleteRoom, StartBrainstormView
+from roomApp.views import CreateRoomView, JoinRoomView, LeaveRoomView, DeleteRoom, StartBrainstormView, \
+    FinishBrainstormView
 
 app_name = 'rooms'
 
@@ -10,5 +11,6 @@ urlpatterns = [
     path('delete/<str:room_code>/', DeleteRoom.as_view(), name='delete_room'),
     path('join/', JoinRoomView.as_view(), name='join_room'),
     path('leave/', LeaveRoomView.as_view(), name='leave_room'),
-    path('start/', StartBrainstormView.as_view(), name='start_brainstorm')
+    path('start/', StartBrainstormView.as_view(), name='start_brainstorm'),
+    path('finish/', FinishBrainstormView.as_view(), name='finish_brainstorm')
 ]

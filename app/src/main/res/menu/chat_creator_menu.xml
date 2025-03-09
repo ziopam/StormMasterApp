@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/showIdeasMenuItem"
+        android:title="@string/show_ideas_text"
+        android:icon="@drawable/show_ideas_icon"/>
+    <item android:id="@+id/finishBrainstormMenuItem"
+        android:title="@string/finish_brainstorm_text"
+        android:icon="@drawable/brainstorm_icon"/>
+    <item android:id="@+id/deleteRoomMenuItem"
+        android:title="@string/delete_room_text"
+        android:icon="@drawable/delete_icon"
+        android:iconTint="@color/beautiful_black"/>
+</menu>

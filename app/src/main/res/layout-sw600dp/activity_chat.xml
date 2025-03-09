@@ -15,7 +15,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:menu="@menu/chat_participant_menu"/>
+        tools:menu="@menu/chat_creator_menu"/>
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/appNameTextView"
@@ -40,6 +40,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="5dp"
+        android:layout_marginBottom="3dp"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="5dp"
         app:layout_constraintBottom_toTopOf="@+id/messageInputCardView"

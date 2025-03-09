@@ -61,3 +61,47 @@ class Room(models.Model):
                 break
             except IntegrityError:
                 self.room_code = generate_room_code()  # Regenerate code and try to save again
+
+
+class Idea(models.Model):
+    """
+    This class is used to define the Idea model
+    """
+
+    idea_number = models.IntegerField()
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name="ideas")
+    votes = models.IntegerField(default=0)
+    voters = models.ManyToManyField(User, blank=True, related_name='voted_ideas')
+
+    def update_votes(self):
+        """
+        This function is used to update the number of votes for the idea
+        """
+
+        self.votes = self.voters.count()
+        self.save()
+
+class Message(models.Model):
+    """
+    This class is used to define the Message model
+    """
+
+    room = models.ForeignKey(
+        Room,
+        on_delete=models.CASCADE,
+        related_name="messages"
+    )
+    sender = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="messages"
+    )
+    text = models.TextField(null=False, blank=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    idea = models.ForeignKey(
+        Idea,
+        on_delete=models.CASCADE,
+        related_name="messages",
+        null=True,
+        blank=True
+    )

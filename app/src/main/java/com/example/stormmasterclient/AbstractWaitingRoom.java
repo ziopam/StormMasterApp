@@ -3,14 +3,17 @@ package com.example.stormmasterclient;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.stormmasterclient.helpers.API.ApiProblemsHandler;
+import com.example.stormmasterclient.helpers.RoomDatabase.MessagesRepository;
 import com.example.stormmasterclient.helpers.WebSocket.IWebSocketMessageListener;
 import com.example.stormmasterclient.helpers.WebSocket.WebSocketClient;
+import com.example.stormmasterclient.helpers.WebSocket.WebSocketSyncHandler;
 import com.google.android.material.textview.MaterialTextView;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -65,10 +68,11 @@ public abstract class AbstractWaitingRoom extends AppCompatActivity implements I
 
                 switch (type) {
                     case "sync_data": syncData(messageData); break;
-                    case "error": handleErrors(messageData); break;
+                    case "error": webSocketClient.handleErrors(messageData, this, apiProblemsHandler); break;
                     case "user_joined": addParticipant(messageData.get("username").getAsString()); break;
                     case "user_left": removeParticipant(messageData.get("username").getAsString()); break;
-                    case "chat_started": startChatActivity(this, roomCode, isCreator, webSocketClient); break;
+                    case "chat_started": startChatActivity(this, roomCode, isCreator,
+                            messageData.get("details").getAsString(), webSocketClient); break;
                 }
             }
         });
@@ -76,11 +80,18 @@ public abstract class AbstractWaitingRoom extends AppCompatActivity implements I
 
     /**
      * Starts the chat activity.
+     *
+     * @param context The context from which the chat activity is started.
+     * @param roomCode The code of the room.
+     * @param isCreator Whether the user is the creator of the room.
+     * @param details The details of the room.
+     * @param webSocketClient The WebSocket client.
      */
-    public static void startChatActivity(Context context, String roomCode, boolean isCreator, WebSocketClient webSocketClient) {
+    public static void startChatActivity(Context context, String roomCode, boolean isCreator, String details, WebSocketClient webSocketClient) {
         Intent intent = new Intent(context, ChatActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.putExtra("roomCode", roomCode);
+        intent.putExtra("roomDetails", details);
         intent.putExtra("isCreator", isCreator);
         ChatActivity.webSocketClient = webSocketClient;
         context.startActivity(intent);
@@ -97,42 +108,17 @@ public abstract class AbstractWaitingRoom extends AppCompatActivity implements I
                 setParticipantsAndAmount(data.get("participants").getAsString(),
                         data.get("participants_amount").getAsInt());
             } else {
-                startChatActivity(this, roomCode, isCreator, webSocketClient);
+                String username = getSharedPreferences("USER_DATA", 0).getString("username", "");
+                if(username.equals("")){
+                    apiProblemsHandler.processUserUnauthorized();
+                    webSocketClient.closeWebSocket();
+                }
+
+                String details = new WebSocketSyncHandler().handleMessages(data, username,
+                        new MessagesRepository(getApplication()));
+                startChatActivity(this, roomCode, isCreator, details, webSocketClient);
             }
         });
-    }
-
-    /**
-     * Handles the errors received from the WebSocket.
-     *
-     * @param messageData The data of the message.
-     */
-    protected void handleErrors(JsonObject messageData){
-        int errorCode = messageData.get("error_code").getAsInt();
-        switch (errorCode){
-            case 1006:
-            case 4000:
-                Toast.makeText(this, "Проверьте подключение к интернету",
-                        Toast.LENGTH_SHORT).show();
-                break;
-            case 4001:
-                apiProblemsHandler.processUserUnauthorized();
-                webSocketClient.closeWebSocket();
-                break;
-            case 4003:
-                Toast.makeText(this, "Вы больше не являетесь участником этого мозгового штурма",
-                        Toast.LENGTH_SHORT).show();
-                webSocketClient.closeWebSocket();
-                apiProblemsHandler.returnToMain();
-                break;
-            case 4004:
-                Toast.makeText(this, "Этой комнаты больше не существует",
-                        Toast.LENGTH_SHORT).show();
-                webSocketClient.closeWebSocket();
-                apiProblemsHandler.returnToMain();
-                break;
-
-        }
     }
 
 

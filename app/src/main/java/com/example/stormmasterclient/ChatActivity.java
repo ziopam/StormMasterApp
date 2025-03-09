@@ -6,6 +6,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,17 +17,24 @@ import android.widget.Toast;
 
 import com.example.stormmasterclient.helpers.API.ApiProblemsHandler;
 import com.example.stormmasterclient.helpers.API.ApiRoomClient;
-import com.example.stormmasterclient.helpers.RecyclerViewAdapters.MessageEntity;
 import com.example.stormmasterclient.helpers.RecyclerViewAdapters.MessagesAdapter;
+import com.example.stormmasterclient.helpers.RoomDatabase.MessageEntity;
+import com.example.stormmasterclient.helpers.RoomDatabase.MessagesRepository;
 import com.example.stormmasterclient.helpers.TextWatchers.MessageTextWatcher;
 import com.example.stormmasterclient.helpers.WebSocket.IWebSocketMessageListener;
 import com.example.stormmasterclient.helpers.WebSocket.WebSocketClient;
+import com.example.stormmasterclient.helpers.WebSocket.WebSocketSyncHandler;
+import com.example.stormmasterclient.helpers.dialogs.DeleteRoomDialog;
+import com.example.stormmasterclient.helpers.dialogs.FinishBrainstormDialog;
+import com.example.stormmasterclient.helpers.dialogs.ShowIdeasAndThemeDialog;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textview.MaterialTextView;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+
+import java.util.ArrayList;
 
 
 /**
@@ -35,25 +43,36 @@ import com.google.gson.JsonObject;
 public class ChatActivity extends AppCompatActivity implements IWebSocketMessageListener {
     private String roomCode;
     private String username;
-    private boolean isCreator;
-    private MessagesAdapter messagesAdapter = new MessagesAdapter();
+    private String roomDetails;
+    final private MessagesAdapter messagesAdapter = new MessagesAdapter();
+    private final MessagesRepository messagesRepository = new MessagesRepository(getApplication());
     public static WebSocketClient webSocketClient;
+    private final WebSocketSyncHandler webSocketSyncHandler = new WebSocketSyncHandler();
     private ApiProblemsHandler apiProblemsHandler;
     private ApiRoomClient apiRoomClient;
 
 
+    /**
+     * Called when the activity is first created.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut
+     * down then this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle).
+     * Otherwise it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        // Get room code from the intent
         roomCode = getIntent().getStringExtra("roomCode");
-        isCreator = getIntent().getBooleanExtra("isCreator", false);
+        roomDetails = getIntent().getStringExtra("roomDetails");
+        Log.d("ROOM_DETAILS_FROM_INTENT", roomDetails);
 
-        // Menu set up
+
+        // Set up menu, so it will lock different on different screens
         NavigationView navigationView = findViewById(R.id.navigationView);
         if(navigationView != null) {
+            navigationView.inflateMenu(getCorrectMenu());
             navigationView.setNavigationItemSelectedListener(item -> {
                 handleMenu(item);
                 return true;
@@ -72,7 +91,7 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
         apiProblemsHandler = new ApiProblemsHandler(this);
         apiRoomClient = new ApiRoomClient(this, token);
 
-        // Set new listener
+        // Set new listener to enable new processing of messages
         webSocketClient.listener = this;
 
         // If the username is empty, that means the user is not logged in
@@ -85,6 +104,9 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
         RecyclerView messagesRecyclerView = findViewById(R.id.messagesRecyclerView);
         messagesRecyclerView.setAdapter(messagesAdapter);
         messagesRecyclerView.setLayoutManager(new GridLayoutManager(this, 1));
+
+        // Connect database and RecyclerView adapter to see actual messages
+        messagesRepository.getAllMessages().observe(this, messagesAdapter::submitList);
 
         // Show room code in the header
         MaterialTextView appName = findViewById(R.id.appNameTextView);
@@ -115,6 +137,11 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
         });
     }
 
+    /**
+     * Processes the received message from the WebSocket.
+     *
+     * @param message The received message.
+     */
     @Override
     public void onMessageReceived(String message) {
         JsonObject messageData;
@@ -127,67 +154,94 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
 
         if(messageData.get("type") != null){
             String type = messageData.get("type").getAsString();
+            SharedPreferences sharedPreferences = getSharedPreferences("USER_DATA", MODE_PRIVATE);
+            username = sharedPreferences.getString("username", "");
 
             switch (type) {
-                case "error": handleErrors(messageData); break;
+                case "error": webSocketClient.handleErrors(messageData, this, apiProblemsHandler); break;
                 case "new_message": handleNewMessage(messageData); break;
+                case "set_idea": handleSettingIdea(messageData); break;
+                case "update_votes": handleUpdateVotes(messageData); break;
+                case "sync_data": roomDetails =
+                        webSocketSyncHandler.handleMessages(messageData, username, messagesRepository); break;
             }
         }
     }
 
     /**
-     * Handles the errors received from the WebSocket.
+     * Handles the new message received from the WebSocket.
      *
      * @param messageData The data of the message.
      */
-    protected void handleErrors(JsonObject messageData){
-        int errorCode = messageData.get("error_code").getAsInt();
-        runOnUiThread( () -> {
-            switch (errorCode){
-                case 1006:
-                case 4000:
-                    Toast.makeText(this, "Проверьте подключение к интернету",
-                            Toast.LENGTH_SHORT).show();
-                    break;
-                case 4001:
-                    apiProblemsHandler.processUserUnauthorized();
-                    webSocketClient.closeWebSocket();
-                    break;
-                case 4003:
-                    Toast.makeText(this, "Вы больше не являетесь участником этого мозгового штурма",
-                            Toast.LENGTH_SHORT).show();
-                    webSocketClient.closeWebSocket();
-                    apiProblemsHandler.returnToMain();
-                    break;
-                case 4004:
-                    Toast.makeText(this, "Этой комнаты больше не существует",
-                            Toast.LENGTH_SHORT).show();
-                    webSocketClient.closeWebSocket();
-                    apiProblemsHandler.returnToMain();
-                    break;
-                default: webSocketClient.reconnect();
-            }
-        });
-    }
-
     private void handleNewMessage(JsonObject messageData){
         String message = messageData.get("message").getAsString();
         String username = messageData.get("username").getAsString();
+        int id = messageData.get("id").getAsInt();
+        SharedPreferences sharedPreferences = getSharedPreferences("USER_DATA", MODE_PRIVATE);
+        this.username = sharedPreferences.getString("username", "");
         boolean isThisUser = username.equals(this.username);
 
-        // Add the message to the RecyclerView
-        runOnUiThread(() -> {
-            messagesAdapter.messagesList.add(new MessageEntity(message, username, isThisUser, false));
-            messagesAdapter.notifyItemInserted(messagesAdapter.messagesList.size() - 1);
-        });
+        // Add the message to the RecyclerView by adding it to the database
+        MessageEntity messageEntity = new MessageEntity();
+        messageEntity.setMessage(message);
+        messageEntity.setId(id);
+        messageEntity.setUsername(username);
+        messageEntity.setIsThisUser(isThisUser);
+        messagesRepository.insert(messageEntity);
     }
 
+    /**
+     * Handles the setting idea received from the WebSocket.
+     *
+     * @param messageData The data of the message.
+     */
+    private void handleSettingIdea(JsonObject messageData) {
+        int messageId = messageData.get("message_id").getAsInt();
+        int ideaNumber = messageData.get("idea_number").getAsInt();
+        int ideaVotes = messageData.get("idea_votes").getAsInt();
+
+        messagesRepository.updateIdeaFields(messageId, ideaNumber, ideaVotes);
+    }
+
+    /**
+     * Handles the update votes received from the WebSocket.
+     *
+     * @param messageData The data of the message.
+     */
+    private void handleUpdateVotes(JsonObject messageData) {
+        int ideaNumber = messageData.get("idea_number").getAsInt();
+        int ideaVotes = messageData.get("idea_votes").getAsInt();
+
+        Log.d("UPDATE_VOTES", "Idea number: " + ideaNumber + " Idea votes: " + ideaVotes);
+
+        messagesRepository.updateIdeaVotes(ideaNumber, ideaVotes);
+    }
+
+    /**
+     * Gets the correct menu for the chat.
+     *
+     * @return The correct menu resource id.
+     */
+    private int getCorrectMenu(){
+        boolean isCreator = getIntent().getBooleanExtra("isCreator", false);
+        return isCreator ? R.menu.chat_creator_menu : R.menu.chat_participant_menu;
+    }
+
+    /**
+     * Called on the creation of the options menu.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.chat_participant_menu, menu);
+        getMenuInflater().inflate(getCorrectMenu(), menu);
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Called when an options item is selected.
+     *
+     * @param item The selected menu item.
+     * @return true if the item is selected successfully.
+     */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         handleMenu(item);
@@ -200,9 +254,27 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
      * @param item The selected menu item.
      */
     private void handleMenu(MenuItem item){
-        if(item.getItemId() == R.id.leaveMenuItem){
-            Log.d("ChatActivity", "Leaving the room");
+        if(item.getItemId() == R.id.showIdeasMenuItem){
+            new ShowIdeasAndThemeDialog(this, roomDetails, messagesRepository).show();
+        } else if(item.getItemId() == R.id.leaveMenuItem){
             apiRoomClient.leaveRoom(roomCode, webSocketClient);
+            webSocketClient.closeWebSocket();
+        } else if (item.getItemId() == R.id.deleteRoomMenuItem){
+            new DeleteRoomDialog(roomCode, webSocketClient, apiRoomClient, this).show();
+        } else if (item.getItemId() == R.id.finishBrainstormMenuItem){
+            new FinishBrainstormDialog(roomCode, webSocketClient, apiRoomClient, this).show();
         }
+    }
+
+    /**
+     * Called when a context menu item is selected. Uses MessagesAdapter to handle the selection.
+     *
+     * @param item The selected menu item.
+     * @return true if the item is selected successfully.
+     * @see MessagesAdapter#onContextItemSelected(MenuItem, Context, WebSocketClient)
+     */
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        return messagesAdapter.onContextItemSelected(item,this, webSocketClient);
     }
 }

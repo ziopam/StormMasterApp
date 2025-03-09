@@ -120,4 +120,13 @@ public interface ApiService {
      */
     @POST("api/rooms/start/")
     Call<JsonObject> startBrainstorm(@Header("Authorization") String token, @Body RequestBody body);
+
+    /**
+     * Finishes a brainstorm.
+     * @param token The authorization token of the user.
+     * @param body The request body containing the room data.
+     * @return A call object for the finish brainstorm request.
+     */
+    @POST("api/rooms/finish/")
+    Call<JsonObject> finishBrainstorm(@Header("Authorization") String token, @Body RequestBody body);
 }

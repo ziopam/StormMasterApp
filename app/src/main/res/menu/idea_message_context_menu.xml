@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/vote_for_idea_action" android:title="@string/vote_for_idea_text" />
+    <item android:id="@+id/devote_for_idea_action" android:title="@string/remove_vote_for_idea_text" />
+    <item android:id="@+id/remove_idea_action" android:title="@string/remove_idea_text" />
+</menu>
