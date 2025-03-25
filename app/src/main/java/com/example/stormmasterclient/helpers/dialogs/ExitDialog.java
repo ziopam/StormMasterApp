@@ -29,7 +29,7 @@ public class ExitDialog {
     public void show(){
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context)
                 .setTitle("Выйти из аккаунта")
-                .setMessage("Учтите, что при выходе удалятся все сохраненные данные, включая информацию" +
+                .setMessage("Учтите, что при выходе удалятся все сохраненные данные, включая информация " +
                         "о ваших мозгововых штурмах. Вы также можете выйти со всех устройств, если нажмете " +
                         "на кнопку \"Выйти со всех устройств\".")
                 .setNegativeButton("Отмена", (dialogInterface, i) -> dialogInterface.dismiss())

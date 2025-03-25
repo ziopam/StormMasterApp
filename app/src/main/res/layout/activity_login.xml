@@ -57,14 +57,14 @@
         style="@style/Widget.Material3.Button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="15dp"
         android:text="@string/login_button_text"
         android:textSize="20sp"
-        app:layout_constraintWidth_percent="0.35"
         app:layout_constraintEnd_toEndOf="@+id/userNameLoginView"
         app:layout_constraintStart_toStartOf="@+id/userNameLoginView"
         app:layout_constraintTop_toBottomOf="@+id/passwordLoginView"
-        app:layout_constraintWidth_max="244dp" />
+        app:layout_constraintWidth_max="244dp"
+        app:layout_constraintWidth_percent="0.35" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/nameOfAppText"
