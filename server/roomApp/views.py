@@ -9,7 +9,7 @@ from brainstormsApp.models import Brainstorm
 from roomApp.room_schemas import delete_room_schema, leave_room_schema, join_room_schema, \
     create_room_schema, start_brainstorm_schema, finish_brainstorm_schema
 from brainstormsApp.permissions import IsOwnerOrAdmin
-from roomApp.models import Room, Idea
+from roomApp.models import Room, Idea, RoomType
 
 
 class CreateRoomView(APIView):
@@ -38,9 +38,22 @@ class CreateRoomView(APIView):
             room.full_clean()
         except ValidationError as e:
             return Response({'detail': e.message_dict.get('title')[0]}, status=400)
+
+        # Set the room type
+        room_type = request.data.get('room_type')
+        if room_type:
+            # Check if room_type is well-formed
+            try:
+                room_type = RoomType.objects.get(id=room_type)
+            except RoomType.DoesNotExist:
+                return Response({'detail': 'Передан не существующий тип комнаты'}, status=400)
+        else:
+            room_type = RoomType.objects.get(name='Классический')
+
         room.save()
 
         room.participants.add(user)
+        room.room_type = room_type
         room.save()
         return Response({'room_code': room.room_code}, status=201)
 

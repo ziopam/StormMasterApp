@@ -9,7 +9,7 @@ schema_view = get_schema_view(
    openapi.Info(
       title="StormMaster API",
       default_version='v1',
-      description="Test description",
+      description="API for the StormMaster project",
       terms_of_service="https://www.google.com/policies/terms/",
       contact=openapi.Contact(email="contact@snippets.local"),
       license=openapi.License(name=""),

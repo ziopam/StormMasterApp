@@ -12,7 +12,12 @@ create_room_schema = swagger_auto_schema(
                     type=openapi.TYPE_STRING,
                     min_length=1,
                     max_length=25,
-                    pattern=r'^[a-zA-Z-0-9а-яA-я\s]+$')
+                    pattern=r'^[a-zA-Z-0-9а-яA-я\s]+$'),
+                'room_type': openapi.Schema(
+                    type=openapi.TYPE_INTEGER,
+                    description="The type of the room. 1 - Classic, 2 - Round Robin",
+                    enum=[1, 2],
+                    default=1)
             },
             required=['title']
         ),

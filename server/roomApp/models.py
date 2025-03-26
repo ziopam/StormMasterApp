@@ -46,6 +46,7 @@ class Room(models.Model):
     )
     details = models.TextField(null=False, blank=True)
     isChatStarted = models.BooleanField(default=False)
+    room_type = models.ForeignKey('RoomType', on_delete=models.CASCADE, null=False, blank=False, default=1)
 
     def save(self, *args, **kwargs):
         """
@@ -62,6 +63,14 @@ class Room(models.Model):
             except IntegrityError:
                 self.room_code = generate_room_code()  # Regenerate code and try to save again
 
+class RoomType(models.Model):
+    """
+    This class is used to define the RoomType model
+    """
+    name = models.CharField(null=False, blank=False)
+
+    def __str__(self):
+        return self.name
 
 class Idea(models.Model):
     """

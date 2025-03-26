@@ -15,6 +15,8 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.Arrays;
+
 /**
  * Dialog for creating a brainstorm.
  *
@@ -64,10 +66,12 @@ public class CreateBrainstormDialog {
             brainstormName.addTextChangedListener(new BrainstormNameTextWatcher(brainstormNameLayout));
         }
 
+        String[] brainstormTypes = context.getResources().getStringArray(R.array.brainstorm_types);
+
         // Set up the default brainstorm type
         AutoCompleteTextView brainstormType = dialog.findViewById(R.id.brainstormTypeAutoCompleteTextView);
         if (brainstormType != null) {
-            brainstormType.setText(context.getResources().getStringArray(R.array.brainstorm_types)[0], false);
+            brainstormType.setText(brainstormTypes[0], false);
         }
 
         // Set up the create button
@@ -80,8 +84,9 @@ public class CreateBrainstormDialog {
                             Toast.LENGTH_SHORT).show();
                 } else {
                     // Send request to create a room if name is valid
-                    if (brainstormName != null) {
-                        apiRoomClient.createRoom(brainstormName.getText().toString());
+                    if (brainstormName != null && brainstormType != null) {
+                        int roomType = Arrays.asList(brainstormTypes).indexOf(brainstormType.getText().toString()) + 1;
+                        apiRoomClient.createRoom(brainstormName.getText().toString(), roomType);
                     }
                     dialog.dismiss();
                 }

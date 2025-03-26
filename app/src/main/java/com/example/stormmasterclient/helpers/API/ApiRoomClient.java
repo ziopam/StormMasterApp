@@ -61,10 +61,11 @@ public class ApiRoomClient {
      * Creates a room with the given title.
      * @param title The title of the room to create.
      */
-    public void createRoom(String title){
+    public void createRoom(String title, int roomType){
         // Create json object for the request body
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("title", title);
+        jsonObject.addProperty("room_type", roomType);
 
         // Create request body
         RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"),
