@@ -97,6 +97,8 @@ class RoomConsumer(AsyncWebsocketConsumer, EventHandlers):
                 await self.vote_for_idea_received(text_data_json)
             elif message_type == "devote_for_idea":
                 await self.devote_for_idea_received(text_data_json)
+            elif message_type == "round_robin_update":
+                await self.round_robin_update_received(text_data_json)
 
     async def new_message_received(self, room, text_data_json):
         """
@@ -283,3 +285,35 @@ class RoomConsumer(AsyncWebsocketConsumer, EventHandlers):
             }
 
         await self.send(text_data=json.dumps(room_data))
+
+    async def round_robin_update_received(self, text_data_json):
+        """
+        This function is called when the Round Robin data is updated
+        :param text_data_json: the message data with the updated Round Robin data
+        """
+
+        room = await self.get_room()
+        if room is None:
+            return
+
+        room_type_name = await sync_to_async(lambda: room.room_type.name)()
+
+        if room_type_name == 'Round Robin':
+            user = self.scope['user']
+            new_text = text_data_json['new_text']
+            user_message = await Message.objects.aget(sender=user, room=room)
+
+            completed_rounds = await sync_to_async(lambda: room.round_robin_data.completed_rounds)()
+
+            # Find the message to change by calculating the idea number
+            message_to_change = await Message.objects.aget(
+                idea=user_message.idea_id + completed_rounds,
+                room=room
+            )
+            message_to_change.text = new_text
+            await message_to_change.asave()
+
+            # Send message to the sender that the message was successfully changed
+            await self.send(text_data=json.dumps({
+                'type': 'round_robin_updated'
+            }))

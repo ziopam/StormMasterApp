@@ -36,9 +36,11 @@ class EventHandlers:
         """
 
         details = event['details']
+        room_type = event['room_type']
         await self.send(text_data=json.dumps({
             'type': 'chat_started',
-            'details': details
+            'details': details,
+            'room_type': room_type
         }))
 
     async def new_message(self, event):

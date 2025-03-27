@@ -71,8 +71,16 @@ public abstract class AbstractWaitingRoom extends AppCompatActivity implements I
                     case "error": webSocketClient.handleErrors(messageData, this, apiProblemsHandler); break;
                     case "user_joined": addParticipant(messageData.get("username").getAsString()); break;
                     case "user_left": removeParticipant(messageData.get("username").getAsString()); break;
-                    case "chat_started": startChatActivity(this, roomCode, isCreator,
-                            messageData.get("details").getAsString(), webSocketClient); break;
+                    case "chat_started":
+                        int room_type = messageData.get("room_type").getAsInt();
+                        if (room_type == 1) {
+                            startChatActivity(this, roomCode, isCreator,
+                                messageData.get("details").getAsString(), webSocketClient);
+                        } else {
+                            RoundRobinActivity.startRoundRobinActivity(this, roomCode, isCreator,
+                                messageData.get("details").getAsString(), webSocketClient);
+                        }
+                        break;
                 }
             }
         });

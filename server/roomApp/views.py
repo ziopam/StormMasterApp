@@ -10,6 +10,7 @@ from roomApp.room_schemas import delete_room_schema, leave_room_schema, join_roo
     create_room_schema, start_brainstorm_schema, finish_brainstorm_schema
 from brainstormsApp.permissions import IsOwnerOrAdmin
 from roomApp.models import Room, Idea, RoomType
+from roomApp.round_robin_handlers import set_up_round_robin
 
 
 class CreateRoomView(APIView):
@@ -194,13 +195,17 @@ class StartBrainstormView(APIView):
             room.isChatStarted = True
             room.save()
 
+            if room.room_type.name == "Round Robin":
+                set_up_round_robin(room)
+
             # Inform people in the room that the chat has started
             channel_layer = get_channel_layer()
             async_to_sync(channel_layer.group_send)(
                 f'room_{room_code}',
                 {
                     'type': 'chat_started',
-                    'details': details
+                    'details': details,
+                    'room_type': room.room_type_id
                 }
             )
             return Response({'detail': 'ok'}, status=200)

@@ -105,7 +105,7 @@ class Message(models.Model):
         on_delete=models.CASCADE,
         related_name="messages"
     )
-    text = models.TextField(null=False, blank=False)
+    text = models.TextField(null=False, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     idea = models.ForeignKey(
         Idea,
@@ -114,3 +114,12 @@ class Message(models.Model):
         null=True,
         blank=True
     )
+
+class RoundRobinData(models.Model):
+    """
+    This class is used to define the RoundRobinData model
+    """
+
+    room = models.OneToOneField(Room, on_delete=models.CASCADE, related_name='round_robin_data', db_constraint=False)
+    completed_rounds = models.IntegerField(default=0)
+    received_ideas = models.IntegerField(default=0)
