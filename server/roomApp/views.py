@@ -304,7 +304,7 @@ class FinishBrainstormView(APIView):
                 all_idea_messages = idea.messages.all()
                 if all_idea_messages:
                     result += "<div style='text-align: center;'><h3>Идея " + str(idea.idea_number) + "</h3></div>"
-                    result += "<div style='text-align: center;'>Голосов: " + str(idea.votes) + "</div>\n"
+                    result += "<div style='text-align: center;'>Голосов: " + str(idea.votes) + "</div>"
                     for message in all_idea_messages:
                         result += message.text + "\n"
                     result += "\n"

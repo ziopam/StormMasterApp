@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.stormmasterclient.helpers.API.ApiProblemsHandler;
 import com.example.stormmasterclient.helpers.API.ApiRoomClient;
@@ -39,6 +40,7 @@ public class RoundRobinActivity extends AppCompatActivity implements IWebSocketM
     private boolean isCreator;
     private String roomDetails;
     private String htmlHeader;
+    private String username;
 
     public static WebSocketClient webSocketClient;
     private final WebSocketSyncHandler webSocketSyncHandler = new WebSocketSyncHandler();
@@ -47,6 +49,7 @@ public class RoundRobinActivity extends AppCompatActivity implements IWebSocketM
     private MaterialCardView detailsCardView;
     private MaterialButton sendButton;
     private MaterialTextView waitingTextView;
+    MaterialTextView ideaTextView;
     private EditText themeEditText;
 
     @Override
@@ -58,16 +61,23 @@ public class RoundRobinActivity extends AppCompatActivity implements IWebSocketM
         roomDetails = getIntent().getStringExtra("roomDetails");
         isCreator = getIntent().getBooleanExtra("isCreator", false);
 
+        SharedPreferences preferences = getSharedPreferences("USER_DATA", MODE_PRIVATE);
+        username = preferences.getString("username", "");
+
         MaterialTextView detailsTextView = findViewById(R.id.detailsTextView);
+        ideaTextView = findViewById(R.id.ideaTextView);
         detailsCardView = findViewById(R.id.detailsCard);
         themeEditText = findViewById(R.id.themeEditText);
         sendButton = findViewById(R.id.sendButton);
         waitingTextView = findViewById(R.id.waitingTextView);
 
         // Set the room details
-        htmlHeader = "<div style='text-align: center;'><h3>Тема мозгового штурма<h3/></div>" +
+        String detailsHeader = "<div style='text-align: center;'><h3>Тема мозгового штурма<h3/></div>" +
                 roomDetails.replace("\n", "<br>");
-        detailsTextView.setText(Html.fromHtml(htmlHeader, Html.FROM_HTML_MODE_COMPACT));
+        detailsTextView.setText(Html.fromHtml(detailsHeader, Html.FROM_HTML_MODE_COMPACT));
+
+        // Set html header for ideas
+        htmlHeader = "<div style='text-align: center;'><h3>Решения участников<h3/></div>";
 
         // Make the activity listen for WebSocket messages
         webSocketClient.listener = this;
@@ -78,8 +88,15 @@ public class RoundRobinActivity extends AppCompatActivity implements IWebSocketM
         sendButton.setOnClickListener(v -> {
             String theme = themeEditText.getText().toString();
             if (!theme.isEmpty()) {
-                String new_text = detailsTextView.getText().toString().replace(Html.fromHtml(htmlHeader,
-                                Html.FROM_HTML_MODE_COMPACT), "") + "\n" + themeEditText.getText().toString();
+                // Format the new idea and send it to the server
+                String new_text = ideaTextView.getText().toString().replace(Html.fromHtml(htmlHeader,
+                        Html.FROM_HTML_MODE_COMPACT), "");
+                if (ideaTextView.getText().toString().isEmpty()){
+                    new_text += themeEditText.getText().toString();
+                } else {
+                    new_text += "\n\n" + themeEditText.getText().toString();
+                }
+
                 new_text = new_text.replace("\n", "\\n");
                 webSocketClient.sendMessage("{\"type\": \"round_robin_update\", \"new_text\": \"" + new_text + "\"}");
             }
@@ -122,7 +139,8 @@ public class RoundRobinActivity extends AppCompatActivity implements IWebSocketM
             switch (type) {
                 case "error": webSocketClient.handleErrors(messageData, this, apiProblemsHandler); break;
                 case "round_robin_updated": handleRoundRobinUpdated(); break;
-
+                case "new_round_started": handleNewRoundStarted(messageData); break;
+                case "round_robin_finished": handleRoundRobinFinished(messageData); break;
             }
         }
     }
@@ -138,5 +156,36 @@ public class RoundRobinActivity extends AppCompatActivity implements IWebSocketM
             sendButton.setVisibility(View.GONE);
             detailsCardView.setVisibility(View.GONE);
         });
+    }
+
+    /**
+     * Handles the start of a new round.
+     */
+    private void handleNewRoundStarted(JsonObject messageData) {
+        String new_idea = messageData.get("users_ideas").getAsJsonObject().get(username).getAsString();
+        String new_text = (htmlHeader + new_idea).replace("\n", "<br>");
+
+        runOnUiThread(() -> {
+            ideaTextView.setText(Html.fromHtml(new_text, Html.FROM_HTML_MODE_COMPACT));
+            ideaTextView.setVisibility(View.VISIBLE);
+            themeEditText.setText("");
+            sendButton.setEnabled(true);
+            waitingTextView.setVisibility(View.GONE);
+            sendButton.setVisibility(View.VISIBLE);
+            detailsCardView.setVisibility(View.VISIBLE);
+
+            Toast.makeText(this, "Получена идея от другого участника", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    /**
+     * Handles the end of the round robin.
+     */
+    private void handleRoundRobinFinished(JsonObject messageData) {
+        webSocketSyncHandler.handleMessages(messageData, username, new MessagesRepository(getApplication()));
+        runOnUiThread(() -> {
+            Toast.makeText(this, "Этап Round Robin завершен", Toast.LENGTH_SHORT).show();
+        });
+        AbstractWaitingRoom.startChatActivity(this, roomCode, isCreator, roomDetails, webSocketClient);
     }
 }

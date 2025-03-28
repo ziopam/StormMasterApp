@@ -6,6 +6,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 from .consumers_event_handler import EventHandlers
 from .models import Room, Message, Idea
+from .round_robin_handlers import get_user_current_idea, get_users_current_ideas
 
 
 class RoomConsumer(AsyncWebsocketConsumer, EventHandlers):
@@ -301,13 +302,14 @@ class RoomConsumer(AsyncWebsocketConsumer, EventHandlers):
         if room_type_name == 'Round Robin':
             user = self.scope['user']
             new_text = text_data_json['new_text']
-            user_message = await Message.objects.aget(sender=user, room=room)
 
-            completed_rounds = await sync_to_async(lambda: room.round_robin_data.completed_rounds)()
+            robin_data = await sync_to_async(lambda: room.round_robin_data)()
+            participants_amount = await room.participants.acount()
+            current_idea = await get_user_current_idea(user, room, robin_data)
 
-            # Find the message to change by calculating the idea number
+            # Find the message to change
             message_to_change = await Message.objects.aget(
-                idea=user_message.idea_id + completed_rounds,
+                idea=current_idea,
                 room=room
             )
             message_to_change.text = new_text
@@ -317,3 +319,40 @@ class RoomConsumer(AsyncWebsocketConsumer, EventHandlers):
             await self.send(text_data=json.dumps({
                 'type': 'round_robin_updated'
             }))
+
+            robin_data.received_ideas += 1
+
+            # Everybody has sent their ideas. Round is completed
+            if robin_data.received_ideas >= participants_amount:
+                robin_data.completed_rounds += 1
+                robin_data.received_ideas = 0
+
+                # Check if all rounds are completed
+                if robin_data.completed_rounds >= participants_amount:
+                    messages = await sync_to_async(lambda: Message.objects.filter(room=room).
+                                                   order_by('timestamp').
+                                                   values('id', 'sender__username', 'text', 'idea__idea_number',
+                                                          'idea__votes'))()
+
+                    # Inform all users that the Round Robin is finished
+                    await self.channel_layer.group_send(
+                        self.room_group_name,
+                        {
+                            'type': 'round_robin_finished',
+                            'details': room.details,
+                            'messages': await sync_to_async(list)(messages)
+                        })
+
+                    await robin_data.adelete()
+                else:
+                    users_ideas = await get_users_current_ideas(room, robin_data)
+
+                    # Send the updated ideas to all users
+                    await self.channel_layer.group_send(
+                        self.room_group_name,
+                        {
+                            'type': 'new_round_started',
+                            'users_ideas': users_ideas
+                        }
+                    )
+            await robin_data.asave()

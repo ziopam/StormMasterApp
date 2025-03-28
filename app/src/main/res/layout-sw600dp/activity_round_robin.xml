@@ -76,6 +76,19 @@
                         android:textSize="21sp"
                         tools:text="Тема мозгового штурма" />
 
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/ideaTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="21sp"
+                        android:layout_marginTop="6dp"
+                        android:visibility="gone"
+                        android:breakStrategy="simple"
+                        android:justificationMode="inter_word"
+                        android:lineSpacingExtra="4dp"
+                        android:textColor="@color/beautiful_black"
+                        tools:text="Тема мозгового штурма" />
+
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
