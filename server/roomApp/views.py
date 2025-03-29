@@ -87,6 +87,14 @@ class JoinRoomView(APIView):
         # Add user to the room
         user = request.user
         if not room.participants.contains(user):
+            # Round Robin room requires special handling since new users are not allowed to join the room during this step
+            if room.room_type.name == "Round Robin":
+                try:
+                    room.round_robin_data
+                    return Response({'detail': 'Невозможно присоединиться к комнате во время этапа Round Robin'}, status=400)
+                except Room.round_robin_data.RelatedObjectDoesNotExist:
+                    pass
+
             room.participants.add(user)
             room.save()
 
@@ -137,6 +145,14 @@ class LeaveRoomView(APIView):
         user = request.user
         if room.participants.contains(user):
             if room.creator != user:
+                # Round Robin room requires special handling since users are not allowed to leave the room during this step
+                if room.room_type.name == "Round Robin":
+                    try:
+                        room.round_robin_data
+                        return Response({'detail': 'Невозможно покинуть комнату во время этапа Round Robin'}, status=400)
+                    except Room.round_robin_data.RelatedObjectDoesNotExist:
+                        pass
+
                 room.participants.remove(user)
                 room.save()
 

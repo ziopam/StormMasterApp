@@ -200,8 +200,10 @@ public class ApiRoomClient {
     private void processJoiningRoomFailure(Response<JsonObject> response) {
         if(response.code() == 404){
             Toast.makeText(context, "Комната с таким кодом не найдена", Toast.LENGTH_SHORT).show();
-        } else if(response.code() == 401){
+        } else if(response.code() == 401) {
             problemsHandler.processUserUnauthorized();
+        } else if (response.code() == 400){
+            Toast.makeText(context, "Невозможно присоеднится к комнате во время этапа Round Robin", Toast.LENGTH_SHORT).show();
         } else {
             problemsHandler.processConnectionFailed();
         }
