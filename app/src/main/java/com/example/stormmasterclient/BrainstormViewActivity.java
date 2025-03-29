@@ -176,15 +176,13 @@ public class BrainstormViewActivity extends AppCompatActivity {
                     .setTextAlignment(TextAlignment.CENTER));
 
             document.add(new Paragraph("\n\n"));
+            pdfDocument.addNewPage();
+            document.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
 
             // Process the brainstorm details
             String[] ideas = details.split("<div style='text-align: center;'><h3>");
             for (String ideaBlock : ideas) {
                 if (ideaBlock.trim().isEmpty()) continue;
-
-                // Add a new page for each idea
-                pdfDocument.addNewPage();
-                document.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
 
                 String formattedHtml = ideaBlock;
                 if (!formattedHtml.contains("<h1>")) {
@@ -195,9 +193,7 @@ public class BrainstormViewActivity extends AppCompatActivity {
                 formattedHtml = formattedHtml.replace("</div><br>", "</h2></div><p>");
                 formattedHtml += "</p>";
 
-                formattedHtml = "<style>p, span { font-size: 22px; text-align: justify; }</style>" + formattedHtml;
-
-                // Log.d("HTML", formattedHtml);
+                formattedHtml = "<style>p, span { font-size: 16px; text-align: justify; }</style>" + formattedHtml;
 
                 // Set up the converter properties
                 ConverterProperties converterProperties = new ConverterProperties();
@@ -223,6 +219,12 @@ public class BrainstormViewActivity extends AppCompatActivity {
         }
     }
 
+
+    /**
+     * Opens the PDF file.
+     *
+     * @param uri The URI of the file to open.
+     */
     private void openFile(Uri uri){
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setDataAndType(uri, "application/pdf");

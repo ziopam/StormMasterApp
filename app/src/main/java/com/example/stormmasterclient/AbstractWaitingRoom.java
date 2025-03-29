@@ -1,5 +1,7 @@
 package com.example.stormmasterclient;
 
+import static com.example.stormmasterclient.RoundRobinActivity.htmlHeader;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -71,8 +73,16 @@ public abstract class AbstractWaitingRoom extends AppCompatActivity implements I
                     case "error": webSocketClient.handleErrors(messageData, this, apiProblemsHandler); break;
                     case "user_joined": addParticipant(messageData.get("username").getAsString()); break;
                     case "user_left": removeParticipant(messageData.get("username").getAsString()); break;
-                    case "chat_started": startChatActivity(this, roomCode, isCreator,
-                            messageData.get("details").getAsString(), webSocketClient); break;
+                    case "chat_started":
+                        int room_type = messageData.get("room_type").getAsInt();
+                        if (room_type == 1) {
+                            startChatActivity(this, roomCode, isCreator,
+                                messageData.get("details").getAsString(), webSocketClient);
+                        } else {
+                            RoundRobinActivity.startRoundRobinActivity(this, roomCode, isCreator,
+                                messageData.get("details").getAsString(), webSocketClient);
+                        }
+                        break;
                 }
             }
         });
@@ -108,15 +118,42 @@ public abstract class AbstractWaitingRoom extends AppCompatActivity implements I
                 setParticipantsAndAmount(data.get("participants").getAsString(),
                         data.get("participants_amount").getAsInt());
             } else {
+                // Get the username from SharedPreferences
                 String username = getSharedPreferences("USER_DATA", 0).getString("username", "");
                 if(username.equals("")){
                     apiProblemsHandler.processUserUnauthorized();
                     webSocketClient.closeWebSocket();
                 }
 
-                String details = new WebSocketSyncHandler().handleMessages(data, username,
-                        new MessagesRepository(getApplication()));
-                startChatActivity(this, roomCode, isCreator, details, webSocketClient);
+                String move_to = data.get("move_to").getAsString();
+                // Check in which activity to move
+                if (move_to.equals("round_robin")) {
+                    boolean wasIdeaSent = data.get("was_idea_sent").getAsBoolean();
+                    String details = data.get("details").getAsString();
+
+                    if (wasIdeaSent) {
+                        RoundRobinActivity.startRoundRobinActivity(this, roomCode, isCreator,
+                                details, webSocketClient, wasIdeaSent, null);
+                    } else {
+                        String new_idea = data.get("users_ideas").getAsJsonObject().get(username).getAsString();
+
+                        // If there is no text in the idea, just move to the RoundRobinActivity
+                        if(new_idea == null || new_idea.trim().isEmpty()){
+                            RoundRobinActivity.startRoundRobinActivity(this, roomCode, isCreator,
+                                    details, webSocketClient, wasIdeaSent, null);
+                            return;
+                        }
+
+                        // Else, move to the RoundRobinActivity with the new formatted idea
+                        String new_text = (htmlHeader + new_idea).replace("\n", "<br>");
+                        RoundRobinActivity.startRoundRobinActivity(this, roomCode, isCreator,
+                                details, webSocketClient, wasIdeaSent, new_text);
+                    }
+                } else {
+                    String details = new WebSocketSyncHandler().handleMessages(data, username,
+                            new MessagesRepository(getApplication()));
+                    startChatActivity(this, roomCode, isCreator, details, webSocketClient);
+                }
             }
         });
     }

@@ -46,6 +46,7 @@ class Room(models.Model):
     )
     details = models.TextField(null=False, blank=True)
     isChatStarted = models.BooleanField(default=False)
+    room_type = models.ForeignKey('RoomType', on_delete=models.CASCADE, null=False, blank=False, default=1)
 
     def save(self, *args, **kwargs):
         """
@@ -62,6 +63,14 @@ class Room(models.Model):
             except IntegrityError:
                 self.room_code = generate_room_code()  # Regenerate code and try to save again
 
+class RoomType(models.Model):
+    """
+    This class is used to define the RoomType model
+    """
+    name = models.CharField(null=False, blank=False)
+
+    def __str__(self):
+        return self.name
 
 class Idea(models.Model):
     """
@@ -96,7 +105,7 @@ class Message(models.Model):
         on_delete=models.CASCADE,
         related_name="messages"
     )
-    text = models.TextField(null=False, blank=False)
+    text = models.TextField(null=False, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     idea = models.ForeignKey(
         Idea,
@@ -104,4 +113,16 @@ class Message(models.Model):
         related_name="messages",
         null=True,
         blank=True
+    )
+
+class RoundRobinData(models.Model):
+    """
+    This class is used to define the RoundRobinData model
+    """
+
+    room = models.OneToOneField(Room, on_delete=models.CASCADE, related_name='round_robin_data', db_constraint=False)
+    completed_rounds = models.IntegerField(default=0)
+    users_finished_idea = models.ManyToManyField(
+        User,
+        related_name="finished_ideas",
     )

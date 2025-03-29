@@ -61,10 +61,11 @@ public class ApiRoomClient {
      * Creates a room with the given title.
      * @param title The title of the room to create.
      */
-    public void createRoom(String title){
+    public void createRoom(String title, int roomType){
         // Create json object for the request body
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("title", title);
+        jsonObject.addProperty("room_type", roomType);
 
         // Create request body
         RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"),
@@ -199,8 +200,10 @@ public class ApiRoomClient {
     private void processJoiningRoomFailure(Response<JsonObject> response) {
         if(response.code() == 404){
             Toast.makeText(context, "Комната с таким кодом не найдена", Toast.LENGTH_SHORT).show();
-        } else if(response.code() == 401){
+        } else if(response.code() == 401) {
             problemsHandler.processUserUnauthorized();
+        } else if (response.code() == 400){
+            Toast.makeText(context, "Невозможно присоеднится к комнате во время этапа Round Robin", Toast.LENGTH_SHORT).show();
         } else {
             problemsHandler.processConnectionFailed();
         }
@@ -337,9 +340,7 @@ public class ApiRoomClient {
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                if (response.isSuccessful() & response.body() != null){
-                    AbstractWaitingRoom.startChatActivity(activity, roomCode, true, details, webSocketClient);
-                } else {
+                if (!response.isSuccessful() || response.body() == null) {
                     processStartBrainstormFailure(response);
                     webSocketClient.closeWebSocket();
                 }

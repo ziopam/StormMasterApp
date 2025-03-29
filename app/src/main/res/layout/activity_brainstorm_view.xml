@@ -117,7 +117,7 @@
                 android:layout_margin="10dp"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="4dp"
-                app:contentPadding="35dp"
+                app:contentPadding="25dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -130,15 +130,14 @@
                     android:id="@+id/brainstormDetails"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:autoSizeMaxTextSize="@dimen/long_text_size"
-                    android:autoSizeStepGranularity="2dp"
+                    android:textSize="15sp"
                     android:autoSizeTextType="uniform"
                     android:breakStrategy="high_quality"
                     android:lineSpacingExtra="4dp"
                     android:scrollbars="vertical"
                     android:textColor="@color/beautiful_black"
                     app:layout_constraintTop_toBottomOf="@+id/brainstormDate"
-                    tools:text="Информация о мозговом штурме тут как бы много текста и слишком близко все " />
+                    tools:text="Какой-то текст" />
 
             </com.google.android.material.card.MaterialCardView>
         </androidx.constraintlayout.widget.ConstraintLayout>

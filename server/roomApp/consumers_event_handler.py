@@ -36,9 +36,11 @@ class EventHandlers:
         """
 
         details = event['details']
+        room_type = event['room_type']
         await self.send(text_data=json.dumps({
             'type': 'chat_started',
-            'details': details
+            'details': details,
+            'room_type': room_type
         }))
 
     async def new_message(self, event):
@@ -102,3 +104,26 @@ class EventHandlers:
         """
 
         await self.close(code=4100, reason="Brainstorm finished")
+
+    async def new_round_started(self, event):
+        """
+        This function is called when a new round of Round Robin is started
+        :param event: event object
+        """
+
+        await self.send(text_data=json.dumps({
+            'type': 'new_round_started',
+            'users_ideas': event['users_ideas']
+        }))
+
+    async def round_robin_finished(self, event):
+        """
+        This function is called when the Round Robin is finished
+        :param event: event object
+        """
+
+        await self.send(text_data=json.dumps({
+            'type': 'round_robin_finished',
+            'details': event['details'],
+            'messages': event['messages']
+        }))

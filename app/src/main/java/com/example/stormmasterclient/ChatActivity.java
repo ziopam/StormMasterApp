@@ -66,7 +66,6 @@ public class ChatActivity extends AppCompatActivity implements IWebSocketMessage
 
         roomCode = getIntent().getStringExtra("roomCode");
         roomDetails = getIntent().getStringExtra("roomDetails");
-        Log.d("ROOM_DETAILS_FROM_INTENT", roomDetails);
 
 
         // Set up menu, so it will lock different on different screens

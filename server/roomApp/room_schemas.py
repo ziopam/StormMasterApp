@@ -12,7 +12,12 @@ create_room_schema = swagger_auto_schema(
                     type=openapi.TYPE_STRING,
                     min_length=1,
                     max_length=25,
-                    pattern=r'^[a-zA-Z-0-9а-яA-я\s]+$')
+                    pattern=r'^[a-zA-Z-0-9а-яA-я\s]+$'),
+                'room_type': openapi.Schema(
+                    type=openapi.TYPE_INTEGER,
+                    description="The type of the room. 1 - Classic, 2 - Round Robin",
+                    enum=[1, 2],
+                    default=1)
             },
             required=['title']
         ),
@@ -80,7 +85,7 @@ join_room_schema = swagger_auto_schema(operation_id="join_room",
                 }
             ),
             400: openapi.Response(
-                description="Error in the room_code field", examples={
+                description="- Error in the room_code field\n - User that's not in room tries to join it during Round Robin step", examples={
                     "application/json": {
                         "detail": "Поле room_code обязательно в запросе"
                     }
@@ -105,7 +110,7 @@ join_room_schema = swagger_auto_schema(operation_id="join_room",
 leave_room_schema = swagger_auto_schema(
         operation_id="leave_room",
         operation_description="Use this endpoint to leave a room. The request must be authorized. The creator of room is "
-                              "not allowed to leave a room. Only delete it.",
+                              "not allowed to leave a room. Only delete it. User can't also leave a room which is in Round Robin's progress.",
         tags=['rooms'],
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
@@ -117,7 +122,8 @@ leave_room_schema = swagger_auto_schema(
         responses={
             200: openapi.Response(description="OK"),
             400: openapi.Response(
-                description="- Error in the room_code field\n - User is the creator of room. They can't leave it, only delete it",
+                description="- Error in the room_code field\n - User is the creator of room. They can't leave it, only delete it"
+                            "\n - User tries to leave a room which is in Round Robin progress.",
                 examples={
                     "application/json": {
                         "detail": "Поле room_code обязательно в запросе"

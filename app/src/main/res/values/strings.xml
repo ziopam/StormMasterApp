@@ -47,6 +47,9 @@
     <string name="vote_for_idea_text">Проголосовать за идею</string>
     <string name="remove_vote_for_idea_text">Убрать свой голос за идею</string>
     <string name="remove_idea_text">Убрать пометку идея</string>
+    <string name="send_other_user_text">Отправить</string>
+    <string name="hint_round_robin">Дополните идею</string>
+    <string name="waiting_for_others_text">Ожидание передачи идей другими участниками</string>
 
     <string-array name="brainstorm_types">
         <item>Классический</item>

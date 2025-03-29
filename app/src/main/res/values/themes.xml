@@ -3,6 +3,7 @@
     <style name="Theme.StormMasterClient" parent="Theme.MaterialComponents.DayNight.NoActionBar">
 
         <item name="android:statusBarColor">@color/purple_500</item>
+        <item name="android:fontFamily">@font/font_family</item>
         <item name="textAppearanceLabelLarge">@style/TextAppearance.Material3.LabelLarge</item>
         <!-- Customize your theme here. -->
     </style>

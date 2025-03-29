@@ -9,7 +9,8 @@ from brainstormsApp.models import Brainstorm
 from roomApp.room_schemas import delete_room_schema, leave_room_schema, join_room_schema, \
     create_room_schema, start_brainstorm_schema, finish_brainstorm_schema
 from brainstormsApp.permissions import IsOwnerOrAdmin
-from roomApp.models import Room, Idea
+from roomApp.models import Room, Idea, RoomType
+from roomApp.round_robin_handlers import set_up_round_robin
 
 
 class CreateRoomView(APIView):
@@ -38,9 +39,22 @@ class CreateRoomView(APIView):
             room.full_clean()
         except ValidationError as e:
             return Response({'detail': e.message_dict.get('title')[0]}, status=400)
+
+        # Set the room type
+        room_type = request.data.get('room_type')
+        if room_type:
+            # Check if room_type is well-formed
+            try:
+                room_type = RoomType.objects.get(id=room_type)
+            except RoomType.DoesNotExist:
+                return Response({'detail': 'Передан не существующий тип комнаты'}, status=400)
+        else:
+            room_type = RoomType.objects.get(name='Классический')
+
         room.save()
 
         room.participants.add(user)
+        room.room_type = room_type
         room.save()
         return Response({'room_code': room.room_code}, status=201)
 
@@ -73,6 +87,14 @@ class JoinRoomView(APIView):
         # Add user to the room
         user = request.user
         if not room.participants.contains(user):
+            # Round Robin room requires special handling since new users are not allowed to join the room during this step
+            if room.room_type.name == "Round Robin":
+                try:
+                    room.round_robin_data
+                    return Response({'detail': 'Невозможно присоединиться к комнате во время этапа Round Robin'}, status=400)
+                except Room.round_robin_data.RelatedObjectDoesNotExist:
+                    pass
+
             room.participants.add(user)
             room.save()
 
@@ -123,6 +145,14 @@ class LeaveRoomView(APIView):
         user = request.user
         if room.participants.contains(user):
             if room.creator != user:
+                # Round Robin room requires special handling since users are not allowed to leave the room during this step
+                if room.room_type.name == "Round Robin":
+                    try:
+                        room.round_robin_data
+                        return Response({'detail': 'Невозможно покинуть комнату во время этапа Round Robin'}, status=400)
+                    except Room.round_robin_data.RelatedObjectDoesNotExist:
+                        pass
+
                 room.participants.remove(user)
                 room.save()
 
@@ -181,13 +211,17 @@ class StartBrainstormView(APIView):
             room.isChatStarted = True
             room.save()
 
+            if room.room_type.name == "Round Robin":
+                set_up_round_robin(room)
+
             # Inform people in the room that the chat has started
             channel_layer = get_channel_layer()
             async_to_sync(channel_layer.group_send)(
                 f'room_{room_code}',
                 {
                     'type': 'chat_started',
-                    'details': details
+                    'details': details,
+                    'room_type': room.room_type_id
                 }
             )
             return Response({'detail': 'ok'}, status=200)
@@ -286,7 +320,7 @@ class FinishBrainstormView(APIView):
                 all_idea_messages = idea.messages.all()
                 if all_idea_messages:
                     result += "<div style='text-align: center;'><h3>Идея " + str(idea.idea_number) + "</h3></div>"
-                    result += "<div style='text-align: center;'>Голосов: " + str(idea.votes) + "</div>\n"
+                    result += "<div style='text-align: center;'>Голосов: " + str(idea.votes) + "</div>"
                     for message in all_idea_messages:
                         result += message.text + "\n"
                     result += "\n"
