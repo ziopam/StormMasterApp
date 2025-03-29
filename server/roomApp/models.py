@@ -122,4 +122,7 @@ class RoundRobinData(models.Model):
 
     room = models.OneToOneField(Room, on_delete=models.CASCADE, related_name='round_robin_data', db_constraint=False)
     completed_rounds = models.IntegerField(default=0)
-    received_ideas = models.IntegerField(default=0)
+    users_finished_idea = models.ManyToManyField(
+        User,
+        related_name="finished_ideas",
+    )

@@ -6,6 +6,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from .consumers_event_handler import EventHandlers
 from .consumers_received_handlers import ReceivedHandlers
 from .models import Room, Message
+from .round_robin_handlers import get_users_current_ideas
 
 
 class RoomConsumer(AsyncWebsocketConsumer, EventHandlers, ReceivedHandlers):
@@ -111,16 +112,41 @@ class RoomConsumer(AsyncWebsocketConsumer, EventHandlers, ReceivedHandlers):
 
         # Send data according to the room state
         if room.isChatStarted:
-            messages = await sync_to_async(lambda : Message.objects.filter(room=room).
-                                           order_by('timestamp').
-                                           values('id', 'sender__username', 'text', 'idea__idea_number', 'idea__votes'))()
+            # Check if users are in the Round Robin activity
 
-            room_data = {
-                'type': 'sync_data',
-                'isChatStarted': True,
-                'details': room.details,
-                'messages': await sync_to_async(list)(messages)
-            }
+            try:
+                robin_data = await sync_to_async(lambda: room.round_robin_data)()
+            except Room.round_robin_data.RelatedObjectDoesNotExist:
+                robin_data = None
+
+            room_type = await sync_to_async(lambda: room.room_type.name)()
+
+            if room_type == 'Round Robin' and robin_data:
+                room_data = {
+                    'type': 'sync_data',
+                    'isChatStarted': True,
+                    'details': room.details,
+                    'move_to': "round_robin",
+                }
+
+                # Check if the user has already sent their idea
+                if await robin_data.users_finished_idea.acontains(self.scope['user']):
+                    room_data['was_idea_sent'] = True
+                else:
+                    room_data['was_idea_sent'] = False
+                    room_data['users_ideas'] = await get_users_current_ideas(room, robin_data)
+            else:
+                messages = await sync_to_async(lambda : Message.objects.filter(room=room).
+                                               order_by('timestamp').
+                                               values('id', 'sender__username', 'text', 'idea__idea_number', 'idea__votes'))()
+
+                room_data = {
+                    'type': 'sync_data',
+                    'isChatStarted': True,
+                    'details': room.details,
+                    'move_to': "chat",
+                    'messages': await sync_to_async(list)(messages)
+                }
         else:
             room_data = {
                 'type': 'sync_data',

@@ -39,7 +39,7 @@ public class RoundRobinActivity extends AppCompatActivity implements IWebSocketM
     private String roomCode;
     private boolean isCreator;
     private String roomDetails;
-    private String htmlHeader;
+    public static String htmlHeader = "<div style='text-align: center;'><h3>Решения участников<h3/></div>";;
     private String username;
 
     public static WebSocketClient webSocketClient;
@@ -60,6 +60,8 @@ public class RoundRobinActivity extends AppCompatActivity implements IWebSocketM
         roomCode = getIntent().getStringExtra("roomCode");
         roomDetails = getIntent().getStringExtra("roomDetails");
         isCreator = getIntent().getBooleanExtra("isCreator", false);
+        boolean wasIdeaSent = getIntent().getBooleanExtra("wasIdeaSent", false);
+        String ideaText = getIntent().getStringExtra("ideaText");
 
         SharedPreferences preferences = getSharedPreferences("USER_DATA", MODE_PRIVATE);
         username = preferences.getString("username", "");
@@ -71,13 +73,23 @@ public class RoundRobinActivity extends AppCompatActivity implements IWebSocketM
         sendButton = findViewById(R.id.sendButton);
         waitingTextView = findViewById(R.id.waitingTextView);
 
+        // Show room code in the header
+        MaterialTextView appName = findViewById(R.id.nameOfAppText);
+        String header = appName.getText().toString() + " · " + roomCode;
+        appName.setText(header);
+
         // Set the room details
         String detailsHeader = "<div style='text-align: center;'><h3>Тема мозгового штурма<h3/></div>" +
                 roomDetails.replace("\n", "<br>");
         detailsTextView.setText(Html.fromHtml(detailsHeader, Html.FROM_HTML_MODE_COMPACT));
 
-        // Set html header for ideas
-        htmlHeader = "<div style='text-align: center;'><h3>Решения участников<h3/></div>";
+        // Fill the idea text if it was received from the intent
+        if(wasIdeaSent){
+            handleRoundRobinUpdated();
+        } else if (ideaText != null){
+            ideaTextView.setText(Html.fromHtml(ideaText, Html.FROM_HTML_MODE_COMPACT));
+            ideaTextView.setVisibility(View.VISIBLE);
+        }
 
         // Make the activity listen for WebSocket messages
         webSocketClient.listener = this;
@@ -123,6 +135,31 @@ public class RoundRobinActivity extends AppCompatActivity implements IWebSocketM
         context.startActivity(intent);
     }
 
+    /**
+     * Starts the RoundRobinActivity.
+     *
+     * @param context The context of the activity.
+     * @param roomCode The room code.
+     * @param isCreator A boolean indicating if the user is the creator of the room.
+     * @param details The details of the room.
+     * @param webSocketClient The WebSocket client.
+     * @param wasIdeaSent A boolean indicating if the idea was sent.
+     * @param ideaText The text of the idea on which user is working right now.
+     */
+    public static void startRoundRobinActivity(Context context, String roomCode, boolean isCreator,
+                                               String details, WebSocketClient webSocketClient,
+                                               boolean wasIdeaSent, String ideaText) {
+        Intent intent = new Intent(context, RoundRobinActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra("roomCode", roomCode);
+        intent.putExtra("roomDetails", details);
+        intent.putExtra("isCreator", isCreator);
+        intent.putExtra("wasIdeaSent", wasIdeaSent);
+        intent.putExtra("ideaText", ideaText);
+        RoundRobinActivity.webSocketClient = webSocketClient;
+        context.startActivity(intent);
+    }
+
     @Override
     public void onMessageReceived(String message) {
         JsonObject messageData;
@@ -141,6 +178,7 @@ public class RoundRobinActivity extends AppCompatActivity implements IWebSocketM
                 case "round_robin_updated": handleRoundRobinUpdated(); break;
                 case "new_round_started": handleNewRoundStarted(messageData); break;
                 case "round_robin_finished": handleRoundRobinFinished(messageData); break;
+                case "sync_data": handleSyncData(messageData); break;
             }
         }
     }
@@ -187,5 +225,26 @@ public class RoundRobinActivity extends AppCompatActivity implements IWebSocketM
             Toast.makeText(this, "Этап Round Robin завершен", Toast.LENGTH_SHORT).show();
         });
         AbstractWaitingRoom.startChatActivity(this, roomCode, isCreator, roomDetails, webSocketClient);
+    }
+
+    /**
+     * Handles the sync data received from the server.
+     *
+     * @param messageData The sync data received from the server.
+     */
+    private void handleSyncData(JsonObject messageData) {
+        String move_to = messageData.get("move_to").getAsString();
+
+        // Check in which user should be
+        if (move_to.equals("round_robin")){
+            boolean wasIdeaSent = messageData.get("was_idea_sent").getAsBoolean();
+            if (wasIdeaSent) {
+                handleRoundRobinUpdated();
+            } else {
+                handleNewRoundStarted(messageData);
+            }
+        } else {
+            handleRoundRobinFinished(messageData);
+        }
     }
 }

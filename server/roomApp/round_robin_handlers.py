@@ -1,5 +1,4 @@
 from asgiref.sync import sync_to_async
-from daphne.server import current_reactor
 
 from roomApp.models import Room, Idea, Message, RoundRobinData
 

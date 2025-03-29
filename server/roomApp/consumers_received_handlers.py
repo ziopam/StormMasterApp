@@ -200,12 +200,16 @@ class ReceivedHandlers:
                 'type': 'round_robin_updated'
             }))
 
-            robin_data.received_ideas += 1
+            # Check if the user has already sent their idea
+            if await robin_data.users_finished_idea.acontains(user):
+                return
+
+            await sync_to_async(robin_data.users_finished_idea.add)(user)
 
             # Everybody has sent their ideas. Round is completed
-            if robin_data.received_ideas >= participants_amount:
+            if await robin_data.users_finished_idea.acount() >= participants_amount:
                 robin_data.completed_rounds += 1
-                robin_data.received_ideas = 0
+                await sync_to_async(robin_data.users_finished_idea.clear)()
 
                 # Check if all rounds are completed
                 if robin_data.completed_rounds >= participants_amount:
@@ -224,6 +228,7 @@ class ReceivedHandlers:
                         })
 
                     await robin_data.adelete()
+                    return
                 else:
                     users_ideas = await get_users_current_ideas(room, robin_data)
 
