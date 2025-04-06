@@ -23,5 +23,5 @@ urlpatterns = [
     path('api/auth/', include('customUser.auth_urls')),
     path('api/', include('brainstormsApp.brainstorm_urls')),
     path('api/rooms/', include('roomApp.rooms_urls')),
-    path('doc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path('doc/', schema_view.with_ui('redoc', cache_timeout=86400), name='schema-redoc'),
 ]
