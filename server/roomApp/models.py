@@ -67,7 +67,7 @@ class RoomType(models.Model):
     """
     This class is used to define the RoomType model
     """
-    name = models.CharField(null=False, blank=False)
+    name = models.CharField(max_length=30, null=False, blank=False)
 
     def __str__(self):
         return self.name
